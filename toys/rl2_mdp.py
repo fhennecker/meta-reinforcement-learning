@@ -22,6 +22,7 @@ class RL2():
         # shape = batch_size, seq_length, action&reward&termination
         self.input = tf.placeholder(tf.float32, shape=[1, 1, 3])
         
+        # defining the recurrent part
         self.cell = tf.nn.rnn_cell.GRUCell(10)
         self.initial_state = self.cell.zero_state(1, tf.float32)
         
@@ -31,11 +32,13 @@ class RL2():
                 initial_state=self.initial_state
         )
 
+        # fully connected and output
         self.rnn_output = tf.squeeze(self.rnn_output, axis=[0])
         self.actions_distribution = tf.squeeze(tf.nn.softmax(
                 slim.fully_connected(self.rnn_output, self.n_bandits)
         ))
 
+        # loss function
         self.action = tf.placeholder(tf.int32)
         action_one_hot = tf.one_hot(self.action, self.n_bandits)
         self.reward = tf.placeholder(tf.float32)
