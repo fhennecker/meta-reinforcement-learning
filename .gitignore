@@ -1,1 +1,10 @@
 ve/
+papers/
+*.DS_Store
+*.pdf
+*.aux
+*.log
+*.idx
+*.toc
+*.bbl
+*.blg
