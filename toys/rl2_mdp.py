@@ -36,6 +36,15 @@ class RL2():
                 slim.fully_connected(self.rnn_output, self.n_bandits)
         ))
 
+        self.action = tf.placeholder(tf.int32)
+        action_one_hot = tf.one_hot(self.action, self.n_bandits)
+        self.reward = tf.placeholder(tf.float32)
+        self.loss = -tf.log(tf.reduce_sum
+            (self.actions_distribution * self.reward * action_one_hot)+1e-10)
+        self.train_step = tf.train.RMSPropOptimizer(1e-2).minimize(self.loss)
+
+
+
 
 def train():
     n_bandits = 5
@@ -53,6 +62,8 @@ def train():
 
             # generate a new MDP
             bandits = generate_n_bandits(n_bandits)
+            print("New trial with bandits", bandits)
+            print("(Supposed to choose %d)" % np.argmax(bandits))
             # the hidden state is passed from episode to episode
             hidden_state = None
 
@@ -65,12 +76,15 @@ def train():
                 for i in range(episode_length):
                     feed_dict = {
                             nn.input : [[rnn_input]],
+                            nn.action : rnn_input[0],
+                            nn.reward : rnn_input[1],
                     }
                     if hidden_state is not None:
                         feed_dict[nn.initial_state] = hidden_state
 
-                    actions_distribution, hidden_state = sess.run(
-                            [nn.actions_distribution, nn.rnn_output_state], 
+                    actions_distribution, hidden_state, _, loss = sess.run(
+                            [nn.actions_distribution, nn.rnn_output_state, 
+                                nn.train_step, nn.loss], 
                             feed_dict)
 
                     action = np.random.choice(
@@ -78,7 +92,8 @@ def train():
                     reward = pull(bandits, action)
                     terminated = 1 if i == episode_length-1 else 0
                     rnn_input = np.array([action, reward, terminated])
-                    
+                    if i == episode_length -1:
+                        print(loss, np.argmax(actions_distribution))
 
 if __name__ == "__main__":
     train()
