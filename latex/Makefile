@@ -1,13 +1,17 @@
+#!/usr/local/bin/zsh
+
 COMPFILES = *.pdf *.aux *.log *.idx *.toc *.bbl *.blg
 
-all: compiled.pdf
+all: main.pdf
 
-compiled.pdf: main.tex
+main.pdf: main.tex $(wildcard chapters/*.tex)
 	pdflatex $(basename $<) 
 	bibtex $(basename $<) 
 	pdflatex $(basename $<) 
 	pdflatex $(basename $<) 
 	mv $(basename $<).pdf $@
+	open main.pdf
 
 clean: 
 	rm -rf $(COMPFILES)
+	rm inputs.tex

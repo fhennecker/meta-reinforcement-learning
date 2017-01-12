@@ -8,38 +8,45 @@
 \pagestyle{myheadings}
 \fancyhf{}
 \rhead[\leftmark]{thepage}
-%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage[latin1]{inputenc}
-\usepackage[francais]{babel}
+\usepackage[english]{babel}
 \usepackage{url}
+\usepackage{todonotes}
 
 \begin{document}
-%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------------------------
+% Title page
+
 \frontmatter
 \begin{titlepage}
 \begin{center}
 \textbf{UNIVERSIT\'E LIBRE DE BRUXELLES}\\
-\textbf{Faculté des Sciences}\\
-\textbf{Département d'Informatique}
+\textbf{Faculty of Sciences}\\
+\textbf{Department of Computer Science}
 \vfill{}\vfill{}
 
-%\begin{center}
-{\Huge  Titre \vspace*{.5cm}  \linebreak[4] éventuellement sur plusieurs lignes \vspace*{.5cm}  \linebreak[4]  mais un titre court est préférable}
-%\end{center}
+{\Huge  Meta Reinforcement Learning}
 
 {\Huge \par}
-\begin{center}{\LARGE Prénom Nom}\end{center}{\Huge \par}
+\begin{center}{\LARGE Florentin Hennecker}\end{center}{\Huge \par}
 \vfill{}\vfill{}
-\begin{flushright}{\large \textbf{Promoteur :}}\hfill{}{\large Mémoire présenté en vue de}\\
-{\large Prof. Prénom Nom}\hfill{}{\large l'obtention du grade de}\\
-\hfill{}{\large Master en Sciences Informatiques}\end{flushright}{\large\par}
+\begin{flushright}{\large \textbf{Supervisors :}}\hfill{}{\large Masters Thesis submitted}\\
+{\large Prof. Tom Lenaerts}\hfill{}{\large in partial fulfillment of the}\\
+{\large Prof. Peter Vrancx}
+\hfill{}{\large requirements for the degree of}\\
+\hfill{}{\large Master in Computer Science}\end{flushright}{\large\par}
 \vfill{}\vfill{}\enlargethispage{3cm}
-\textbf{Année académique 20XX~-~20XX+1}
+\textbf{Academic Year 2016~-~2017}
 \end{center}
 \end{titlepage}
 \newpage
 \thispagestyle{empty} 
 \null
+
+%------------------------------------------------------------------------------
+% Dedicace page
 
 \newenvironment{vcenterpage}
 {\newpage\thispagestyle{empty} 
@@ -49,128 +56,65 @@
 \begin{vcenterpage}
 \begin{flushright}
     \large\em\null\vskip1in 
-    si vous en sentez l'envie, \\
-   vous pouvez prévoir\\
-   une dédicace ici \vfill
-  \end{flushright}
+    to whomever, \\
+    etc\\
+    etc\vfill
+\end{flushright}
 \end{vcenterpage}
 \thispagestyle{empty}
 \vspace*{5cm}
 
+%------------------------------------------------------------------------------
+% Quotes page
+
 \begin{quotation}
-\noindent ``\emph{Vous pouvez aussi inclure une ou plusieurs citations générales en rapport avec votre sujet.}''
-\begin{flushright}\textbf{l'auteur (vrai ou supposé), date}\end{flushright}
+\noindent ``\emph{Quote 1}''
+\begin{flushright}\textbf{author, date}\end{flushright}
 \end{quotation}
 
 \medskip
 
 \begin{quotation}
-\noindent ``\emph{Il existe des compilations de telles citations.}''
-\begin{flushright}\textbf{autre auteur, date}\end{flushright}
+\noindent ``\emph{Quote 2}''
+\begin{flushright}\textbf{author, date}\end{flushright}
 \end{quotation}
-\chapter*{Remerciements}
+
+%------------------------------------------------------------------------------
+% Acknowledgements
+
+\chapter*{Acknowledgements}
 \thispagestyle{empty} 
 
-\noindent Je tiens à remercier ... 
+\noindent Thanks to ...
 
-\medskip
-sans oublier les plus importants, exercice parfois délicat
+%------------------------------------------------------------------------------
+
 \thispagestyle{empty} 
 \setcounter{page}{0}
 \tableofcontents
+\todo{Index}
 \mainmatter 
-\chapter{Introduction}
-\setcounter{page}{1}
-\begin{quotation}
-\noindent ``\emph{certains aiment insérer une ou des citations particulières, en rapport avec le chapitre.}''
-\begin{flushright}\textbf{auteur, date}\end{flushright}
-\end{quotation}
 
-\vspace*{0.5cm}
+%------------------------------------------------------------------------------
+% Main content
 
-\section{Contexte et objectifs du mémoire}
-Blabla
+\input{chapters/introduction.tex}
 
-Pour une introduction rapide mais quand même bien détaillée de \LaTeX et \LaTeX2e, vous pouvez consulter, outre les bouquins classiques \cite{lamp,mittel}, le site \cite{oetik}.
+\part{Part one}
 
-Vous aurez peut-être besoin d'utiliser d'autres packages que ceux mentionnés au début du fichier! Pour écrire des algorithmes, consultez par exemple le site \cite{fiorio}.
-
-\section{Quelques sections bien choisies}
-Blabla
-
-Blabla
-\section{Structure du mémoire}
-Dans le chapitre \ref{chap2}
-Blabla
-
-\section{Contributions du mémoire}
-\noindent
-La liste suivante présente nos principales contributions :
-\vspace{1cm}
-\begin{enumerate}
-    \item j'espère qu'il y en aura beaucoup~(Chapitres~\ref{chap2} et untels).
-    \item et encore~(Section~\ref{sec-untel}).
-    \item et encore~(Sections untel, untel et untel).
-\end{enumerate}
-
-\clearpage
-\section{Notations}
-
-%
-Il peut être intéressant de rassembler ici les principales notations, leur signification intuitive, et la page où c'est défini plus en détail ou une référence bibliographique si cela s'impose.
-%%%%%%%%%%%%%%%%
-\part{Si du moins votre travail est divisé en parties}
-%%%%%%%%%%%%%%%%
-\chapter{Chapitre premier}
-En utilisant bien les références bibliographiques~\cite{ref1,ref3}.
-\section{Section première}
-Lorsqu'une notion importante est définie dans un gros document, il peut être utile de prévoir son introduction dans un index\index{notion importante}; cela permettra au lecteur, lors d'un usage de la notion dans le texte, de retrouver rapidement cette définition s'il l'a oubliée!
-\subsection{Sous-section}
-Cela permet d'obtenir un texte plus structuré
-\paragraph{Titre de paragraphe}
-On peut aussi avoir des subsubsections, mais il vaut en général mieux éviter de descendre trop bas avec des numérotations du type 3.2.1.5.
-
-De même, il faut bien choisir la façon de numéroter les définitions, lemmes, propositions et théorèmes pour pouvoir bien s'y retrouver sans que ça soit trop lourd! Pour cela, on peut demander aux compteurs correspondants de fonctionner au niveau global, au niveau des sections, ... et on peut grouper les compteurs pour, par exemple, éviter d'avoir un théorème 1 qui suit une proposition 15.
-\section{Section deuxième}
-\section{...}Blabla~\cite{ref2}.
-\chapter{Chapitre deuxième}
-\label{chap2}
-\section{...}Blabla~\cite{ref4}.
-\section{...}
-\label{sec-untel}
-%%%%%%%%%%%%%%%%
-\part{Si du moins votre travail est divisé en parties}
-%%%%%%%%%%%%%%%%
-\chapter{Suivant}
-
-\section{...}
-\section{...}
-\chapter{...}
-
-\section{...}
-\section{...}
 \chapter{Conclusions}
-A rédiger avec soin\index{soin}, car ce sera parfois le seul chapitre lu, ou c'est à partir de lui que vous convaincrez un lecteur potentiel de poursuivre en feuilletant, ou en dévorant, tout!
-%%%%%%%%%%%%%%%%
-\appendix
-\chapter{Si cela se révèle utile}
 
-\section{...}
-\chapter{Rapport du stage de recherche ou en entreprise}
-Si du moins cela n'est pas apparu comme un chapitre à part entière, et si ce n'est pas l'objet d'un document séparé
-\section{Cadre du stage}
-Blabla
-\section{Chronologie du stage}
-Blabla
-\section{Bilan du stage}
-Blabla
+%------------------------------------------------------------------------------
+% Appendix
+
+\appendix
+\chapter{First appendix}
+
 \backmatter
-\printindex % il faudra utiliser l'utilitaire makeindex pour générer le fichier adéquat
+\printindex % use makeindex
 \bibliographystyle{plain}
-\bibliography{biblio} %si on utilise bibtex (il y a beaucoup plus de possibilités qu'indiquées dans ce fichier)
-%on peut bien sûr gérer la bibliographie soi-même
-%on peut aussi prévoir une webographie séparée
-%%%%%%%%%%%%%%%%
+\bibliography{biblio} 
+
 \end{document}
 
 
