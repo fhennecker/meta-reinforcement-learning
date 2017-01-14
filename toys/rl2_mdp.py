@@ -66,7 +66,7 @@ class RL2():
 def train():
     distribution_size = 10
     n_bandits = 5
-    n_trials = int(1e3)
+    n_trials = int(1e4)
     n_episodes_per_trial = 10
     episode_length = 100
 
@@ -90,11 +90,11 @@ def train():
             hidden_state = None
             start_hidden_state = hidden_state
             total_trial_reward = 0
-            total_episode_reward = 0
 
 
             for e in range(n_episodes_per_trial):
 
+                total_episode_reward = 0
                 episode_distributions = []
 
                 initial_action = random.randint(0, n_bandits-1)
@@ -142,11 +142,11 @@ def train():
                 if start_hidden_state is not None:
                     feed_dict[nn.initial_state] = start_hidden_state
                 loss, _ = sess.run([nn.loss, nn.train_step], feed_dict)
-                print(loss)
+                print(loss, total_episode_reward)
 
                 total_trial_reward += total_episode_reward
 
-            total_trial_reward /= n_trials
+            total_trial_reward /= n_episodes_per_trial
             total_trial_rewards.append(total_trial_reward)
             print(total_trial_reward)
             plt.figure(2)
