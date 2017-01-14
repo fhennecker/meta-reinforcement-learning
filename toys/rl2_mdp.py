@@ -48,7 +48,7 @@ class RL2():
         self.loss = -tf.log(tf.reduce_sum(
                 self.actions_distribution * self.reward * self.action_choices_OH
             ) +1e-10) # avoid log(0) with +1e-10
-        self.train_step = tf.train.RMSPropOptimizer(1e-3).minimize(self.loss)
+        self.train_step = tf.train.RMSPropOptimizer(1e-4).minimize(self.loss)
 
     def embed_input(self):
         self.action_choices = tf.cast(
@@ -66,11 +66,14 @@ class RL2():
 def train():
     distribution_size = 10
     n_bandits = 5
-    n_trials = int(1e4)
+    n_trials = int(3e3)
     n_episodes_per_trial = 10
     episode_length = 100
 
     nn = RL2(n_bandits)
+    image = np.zeros((300, episode_length))
+    pull_image = np.zeros((300, episode_length))
+    image_line = 0
 
     bandits_distrib = [generate_n_bandits(n_bandits) for i in range(distribution_size)]
 
@@ -85,7 +88,7 @@ def train():
             # generate a new MDP
             bandits = random.choice(bandits_distrib)
             print("New trial with bandits", bandits)
-            print("(Supposed to choose %d)" % np.argmax(bandits))
+            print("(Supposed to choose %d with value %f)" % (np.argmax(bandits), np.max(bandits)))
             # the hidden state is passed from episode to episode
             hidden_state = None
             start_hidden_state = hidden_state
@@ -132,7 +135,23 @@ def train():
                     # build input for next step
                     terminated = 1 if i == episode_length-1 else 0
                     rnn_input = np.array([action, terminated])
+                    inputs.append(rnn_input)
                     
+                if e%5 == 0 and image_line < image.shape[0]:
+                    pulls = np.array(inputs)[1:,0].reshape([1, -1])
+                    optimal_pulls = pulls == np.argmax(bandits)
+                    quality = np.argsort(bandits)[pulls]
+                    image[image_line, :] = quality
+                    pull_image[image_line, :] = pulls
+                    image_line += 1
+                    plt.figure(1)
+                    plt.imshow(image, cmap='gray', interpolation='nearest')
+                    plt.draw()
+                    plt.pause(0.001)
+                    plt.figure(3)
+                    plt.imshow(pull_image, cmap='gray', interpolation='nearest')
+                    plt.draw()
+                    plt.pause(0.001)
 
                 feed_dict={
                     nn.sequence_length : episode_length,
