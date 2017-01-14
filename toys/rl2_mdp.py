@@ -6,6 +6,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 
 
 def generate_n_bandits(N):
@@ -20,10 +21,12 @@ class RL2():
         self.n_bandits = n_bandits
 
         # shape = batch_size, seq_length, action&reward&termination
-        self.input = tf.placeholder(tf.float32, shape=[1, 1, 3])
+        self.sequence_length = tf.placeholder(tf.int32)
+        self.input = tf.placeholder(tf.float32, shape=[1, None, 2])
+        self.embedded_input = self.embed_input()
         
         # defining the recurrent part
-        self.cell = tf.nn.rnn_cell.GRUCell(10)
+        self.cell = tf.nn.rnn_cell.GRUCell(200)
         self.initial_state = self.cell.zero_state(1, tf.float32)
         
         self.rnn_output, self.rnn_output_state = tf.nn.dynamic_rnn(
@@ -33,70 +36,124 @@ class RL2():
         )
 
         # fully connected and output
-        self.rnn_output = tf.squeeze(self.rnn_output, axis=[0])
-        self.actions_distribution = tf.squeeze(tf.nn.softmax(
+        self.actions_distribution = tf.nn.softmax(
                 slim.fully_connected(self.rnn_output, self.n_bandits)
-        ))
+        )
+
+        # easy endpoint for testing step by step (removes batch size and seq len)
+        self.last_actions_distribution = tf.squeeze(self.actions_distribution)
 
         # loss function
-        self.action = tf.placeholder(tf.int32)
-        action_one_hot = tf.one_hot(self.action, self.n_bandits)
         self.reward = tf.placeholder(tf.float32)
-        self.loss = -tf.log(tf.reduce_sum
-            (self.actions_distribution * self.reward * action_one_hot)+1e-10)
-        self.train_step = tf.train.RMSPropOptimizer(1e-2).minimize(self.loss)
+        self.loss = -tf.log(tf.reduce_sum(
+                self.actions_distribution * self.reward * self.action_choices_OH
+            ) +1e-10) # avoid log(0) with +1e-10
+        self.train_step = tf.train.RMSPropOptimizer(1e-3).minimize(self.loss)
+
+    def embed_input(self):
+        self.action_choices = tf.cast(
+            tf.slice(self.input, [0, 0, 0], [-1, -1, 1]),
+            tf.int32)
+        self.action_choices_OH = tf.squeeze(
+                tf.one_hot(self.action_choices, self.n_bandits),
+                2)
+        self.termination_flags = tf.slice(self.input, [0, 0, 1], [-1, -1, 1])
+        return tf.concat(2, (self.action_choices_OH, self.termination_flags))
 
 
 
 
 def train():
+    distribution_size = 10
     n_bandits = 5
-    n_trials = int(1e1)
+    n_trials = int(1e3)
     n_episodes_per_trial = 10
     episode_length = 100
 
     nn = RL2(n_bandits)
 
+    bandits_distrib = [generate_n_bandits(n_bandits) for i in range(distribution_size)]
+
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
 
+        plt.ion()
+        total_trial_rewards = []
         for t in range(n_trials):
 
             # generate a new MDP
-            bandits = generate_n_bandits(n_bandits)
+            bandits = random.choice(bandits_distrib)
             print("New trial with bandits", bandits)
             print("(Supposed to choose %d)" % np.argmax(bandits))
             # the hidden state is passed from episode to episode
             hidden_state = None
+            start_hidden_state = hidden_state
+            total_trial_reward = 0
+            total_episode_reward = 0
+
 
             for e in range(n_episodes_per_trial):
 
+                episode_distributions = []
+
                 initial_action = random.randint(0, n_bandits-1)
-                initial_reward = pull(bandits, initial_action)
-                rnn_input = np.array([initial_action, initial_reward, 0])
+                rnn_input = np.array([initial_action, 0])
+
+                # inputs will be used to update the network based on a full
+                # episode
+                inputs = [rnn_input]
 
                 for i in range(episode_length):
-                    feed_dict = {
-                            nn.input : [[rnn_input]],
-                            nn.action : rnn_input[0],
-                            nn.reward : rnn_input[1],
+
+                    # get action probabilities from network
+                    feed_dict = { 
+                            nn.sequence_length: 1,
+                            nn.input : [[rnn_input]] 
                     }
                     if hidden_state is not None:
                         feed_dict[nn.initial_state] = hidden_state
+                    if i == 0 :
+                        start_hidden_state = hidden_state
 
-                    actions_distribution, hidden_state, _, loss = sess.run(
-                            [nn.actions_distribution, nn.rnn_output_state, 
-                                nn.train_step, nn.loss], 
+                    actions_distribution, hidden_state = sess.run(
+                            [nn.last_actions_distribution, nn.rnn_output_state], 
                             feed_dict)
+                    episode_distributions.append(actions_distribution)
 
+                    # choosing action
                     action = np.random.choice(
                             range(n_bandits), p=actions_distribution)
+
+                    # record reward
                     reward = pull(bandits, action)
+                    total_episode_reward += reward
+
+                    # build input for next step
                     terminated = 1 if i == episode_length-1 else 0
-                    rnn_input = np.array([action, reward, terminated])
-                    if i == episode_length -1:
-                        print(loss, np.argmax(actions_distribution))
+                    rnn_input = np.array([action, terminated])
+                    
+
+                feed_dict={
+                    nn.sequence_length : episode_length,
+                    nn.input : np.array([inputs]),
+                    nn.reward : total_episode_reward
+                }
+                if start_hidden_state is not None:
+                    feed_dict[nn.initial_state] = start_hidden_state
+                loss, _ = sess.run([nn.loss, nn.train_step], feed_dict)
+                print(loss)
+
+                total_trial_reward += total_episode_reward
+
+            total_trial_reward /= n_trials
+            total_trial_rewards.append(total_trial_reward)
+            print(total_trial_reward)
+            plt.figure(2)
+            plt.clf()
+            plt.plot(total_trial_rewards)
+            plt.pause(0.001)
+            plt.show()
 
 if __name__ == "__main__":
     train()
