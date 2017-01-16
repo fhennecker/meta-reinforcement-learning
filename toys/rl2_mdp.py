@@ -7,6 +7,7 @@ import tensorflow.contrib.slim as slim
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import time
 
 
 def generate_n_bandits(N):
@@ -44,10 +45,11 @@ class RL2():
         self.last_actions_distribution = tf.squeeze(self.actions_distribution)
 
         # loss function
-        self.reward = tf.placeholder(tf.float32)
-        self.loss = -tf.log(tf.reduce_sum(
-                self.actions_distribution * self.reward * self.action_choices_OH
-            ) +1e-10) # avoid log(0) with +1e-10
+        self.reward = tf.placeholder(tf.float32, shape=[None]) # discounted sums
+        self.rewards = tf.expand_dims(self.reward, 0)
+        self.loss = -tf.log(tf.reduce_sum(tf.reduce_sum(
+                self.actions_distribution * self.action_choices_OH, 2
+            ) * self.rewards) +1e-10) # avoid log(0) with +1e-10
         self.train_step = tf.train.RMSPropOptimizer(1e-4).minimize(self.loss)
 
     def embed_input(self):
@@ -61,13 +63,19 @@ class RL2():
         return tf.concat(2, (self.action_choices_OH, self.termination_flags))
 
 
+def discount(rewards, gamma):
+    discounted_rewards = np.zeros_like(rewards, dtype=np.float32)
+    discounted_rewards[-1] = rewards[-1]
+    for i in reversed(range(0, len(rewards)-1)):
+        discounted_rewards[i] = rewards[i] + discounted_rewards[i+1] * gamma
+    return discounted_rewards
 
 
 def train():
     distribution_size = 10
     n_bandits = 5
     n_trials = int(3e3)
-    n_episodes_per_trial = 10
+    n_episodes_per_trial = 1
     episode_length = 100
 
     nn = RL2(n_bandits)
@@ -106,6 +114,7 @@ def train():
                 # inputs will be used to update the network based on a full
                 # episode
                 inputs = [rnn_input]
+                rewards = []
 
                 for i in range(episode_length):
 
@@ -130,6 +139,7 @@ def train():
 
                     # record reward
                     reward = pull(bandits, action)
+                    rewards.append(reward)
                     total_episode_reward += reward
 
                     # build input for next step
@@ -144,6 +154,8 @@ def train():
                     image[image_line, :] = quality
                     pull_image[image_line, :] = pulls
                     image_line += 1
+                    start = time.time()
+                if t%15 == 0:
                     plt.figure(1)
                     plt.imshow(image, cmap='gray', interpolation='nearest')
                     plt.draw()
@@ -152,11 +164,12 @@ def train():
                     plt.imshow(pull_image, cmap='gray', interpolation='nearest')
                     plt.draw()
                     plt.pause(0.001)
+                print(time.time()-start)
 
                 feed_dict={
                     nn.sequence_length : episode_length,
-                    nn.input : np.array([inputs]),
-                    nn.reward : total_episode_reward
+                    nn.input : np.array([inputs[:-1]]),
+                    nn.reward : np.array(discount(rewards, 0.9))
                 }
                 if start_hidden_state is not None:
                     feed_dict[nn.initial_state] = start_hidden_state
