@@ -23,16 +23,17 @@ class RL2():
 
         # shape = batch_size, seq_length, action&reward&termination
         self.sequence_length = tf.placeholder(tf.int32)
-        self.input = tf.placeholder(tf.float32, shape=[1, None, 2])
+        self.batch_size = tf.placeholder(tf.int32)
+        self.input = tf.placeholder(tf.float32, shape=[None, None, 2])
         self.embedded_input = self.embed_input()
         
         # defining the recurrent part
         self.cell = tf.nn.rnn_cell.GRUCell(200)
-        self.initial_state = self.cell.zero_state(1, tf.float32)
+        self.initial_state = self.cell.zero_state(self.batch_size, tf.float32)
         
         self.rnn_output, self.rnn_output_state = tf.nn.dynamic_rnn(
                 self.cell,
-                self.input,
+                self.embedded_input,
                 initial_state=self.initial_state
         )
 
@@ -45,8 +46,7 @@ class RL2():
         self.last_actions_distribution = tf.squeeze(self.actions_distribution)
 
         # loss function
-        self.reward = tf.placeholder(tf.float32, shape=[None]) # discounted sums
-        self.rewards = tf.expand_dims(self.reward, 0)
+        self.reward = tf.placeholder(tf.float32, shape=[None, None]) # discounted sums
         self.loss = -tf.log(tf.reduce_sum(tf.reduce_sum(
                 self.actions_distribution * self.action_choices_OH, 2
             ) * self.rewards) +1e-10) # avoid log(0) with +1e-10
@@ -75,7 +75,7 @@ def train():
     distribution_size = 10
     n_bandits = 5
     n_trials = int(3e3)
-    n_episodes_per_trial = 1
+    n_episodes_per_trial = 32
     episode_length = 100
 
     nn = RL2(n_bandits)
@@ -94,7 +94,8 @@ def train():
         for t in range(n_trials):
 
             # generate a new MDP
-            bandits = random.choice(bandits_distrib)
+            #  bandits = random.choice(bandits_distrib)
+            bandits = generate_n_bandits(n_bandits)
             print("New trial with bandits", bandits)
             print("(Supposed to choose %d with value %f)" % (np.argmax(bandits), np.max(bandits)))
             # the hidden state is passed from episode to episode
@@ -103,23 +104,28 @@ def train():
             total_trial_reward = 0
 
 
+            inputs = [[] for i in range(n_episodes_per_trial)]
+            rewards = [[] for i in range(n_episodes_per_trial)]
+
             for e in range(n_episodes_per_trial):
 
                 total_episode_reward = 0
                 episode_distributions = []
 
-                initial_action = random.randint(0, n_bandits-1)
-                rnn_input = np.array([initial_action, 0])
+                hidden_state = None
+                bandits = generate_n_bandits(n_bandits)
 
-                # inputs will be used to update the network based on a full
-                # episode
-                inputs = [rnn_input]
-                rewards = []
+                action = random.randint(0, n_bandits-1)
+                reward = pull(bandits, action)
+                rnn_input = np.array([action, 0])
 
                 for i in range(episode_length):
+                    inputs[e].append(rnn_input)
+                    rewards[e].append(reward)
 
                     # get action probabilities from network
                     feed_dict = { 
+                            nn.batch_size : 1,
                             nn.sequence_length: 1,
                             nn.input : [[rnn_input]] 
                     }
@@ -137,46 +143,46 @@ def train():
                     action = np.random.choice(
                             range(n_bandits), p=actions_distribution)
 
-                    # record reward
                     reward = pull(bandits, action)
-                    rewards.append(reward)
                     total_episode_reward += reward
 
                     # build input for next step
                     terminated = 1 if i == episode_length-1 else 0
-                    rnn_input = np.array([action, terminated])
-                    inputs.append(rnn_input)
+                    rnn_input = np.array([action, i])
                     
-                if e%5 == 0 and image_line < image.shape[0]:
-                    pulls = np.array(inputs)[1:,0].reshape([1, -1])
-                    optimal_pulls = pulls == np.argmax(bandits)
-                    quality = np.argsort(bandits)[pulls]
-                    image[image_line, :] = quality
-                    pull_image[image_line, :] = pulls
-                    image_line += 1
-                    start = time.time()
-                if t%15 == 0:
-                    plt.figure(1)
-                    plt.imshow(image, cmap='gray', interpolation='nearest')
-                    plt.draw()
-                    plt.pause(0.001)
-                    plt.figure(3)
-                    plt.imshow(pull_image, cmap='gray', interpolation='nearest')
-                    plt.draw()
-                    plt.pause(0.001)
-                print(time.time()-start)
-
-                feed_dict={
-                    nn.sequence_length : episode_length,
-                    nn.input : np.array([inputs[:-1]]),
-                    nn.reward : np.array(discount(rewards, 0.9))
-                }
-                if start_hidden_state is not None:
-                    feed_dict[nn.initial_state] = start_hidden_state
-                loss, _ = sess.run([nn.loss, nn.train_step], feed_dict)
-                print(loss, total_episode_reward)
-
                 total_trial_reward += total_episode_reward
+
+            print(np.array(inputs).shape)
+            if t%1 == 0 and image_line < image.shape[0]:
+                pulls = np.array(inputs[-1])[:,0].reshape([1, -1])
+                optimal_pulls = pulls == np.argmax(bandits)
+                quality = np.argsort(bandits)[pulls]
+                image[image_line, :] = quality
+                pull_image[image_line, :] = pulls
+                image_line += 1
+                start = time.time()
+            if t%10 == 0:
+                plt.figure(1)
+                plt.imshow(image, cmap='gray', interpolation='nearest')
+                plt.draw()
+                plt.pause(0.001)
+                plt.figure(3)
+                plt.imshow(pull_image, cmap='gray', interpolation='nearest')
+                plt.draw()
+                plt.pause(0.001)
+            print(time.time()-start)
+
+            feed_dict={
+                nn.batch_size : n_episodes_per_trial,
+                nn.sequence_length : episode_length,
+                nn.input : np.array(inputs),
+                nn.reward : np.array(list(map(lambda r:discount(r, 0.99), rewards)))
+            }
+            #  if start_hidden_state is not None:
+                #  feed_dict[nn.initial_state] = start_hidden_state
+            loss, _ = sess.run([nn.loss, nn.train_step], feed_dict)
+            print(loss, total_episode_reward)
+
 
             total_trial_reward /= n_episodes_per_trial
             total_trial_rewards.append(total_trial_reward)
