@@ -27,8 +27,10 @@ Decision Process (MDP) \index{MDP} characterised by :
 The goal of reinforcement learning is for the agent to select, in any state it
 can be in, the action that will lead it to the highest expected reward :
 
-$$ \mathbb{E}[r] = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
- \sum\limits_{i=0}^\infty \gamma^i r_{t+i}$$
+\begin{equation}
+\mathbb{E}[r] = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
+ \sum\limits_{i=0}^\infty \gamma^i r_{t+i}
+\end{equation}
 
 \noindent with the discount factor \index{discount factor} $\gamma \in [0, 1[$.
 The discount factor allows one to tune the agent's behaviour on the
@@ -42,7 +44,9 @@ The agent uses a policy $\pi(a \mid s)$ which describes a probability
 distribution over the action set $\mathcal{A}$, determining the probability of
 selecting action $a_i$ from state $s_i$. This policy is 
 \textbf{deterministic} if and only if :
-$$ \forall\, s \in \mathcal{S},\; \exists\, a \in \mathcal{A} : \pi(a \mid s) = 1 $$ 
+\begin{equation}
+\forall\, s \in \mathcal{S},\; \exists\, a \in \mathcal{A} : \pi(a \mid s) = 1
+\end{equation}
 \noindent Otherwise, the policy is \textbf{stochastic}.
 
 
