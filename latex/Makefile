@@ -7,6 +7,7 @@ all: main.pdf
 main.pdf: main.tex $(wildcard chapters/*.tex)
 	pdflatex $(basename $<) 
 	bibtex $(basename $<) 
+	makeindex $(basename $<)
 	pdflatex $(basename $<) 
 	pdflatex $(basename $<) 
 	mv $(basename $<).pdf $@

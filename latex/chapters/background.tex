@@ -1,0 +1,58 @@
+\chapter{Background}
+\begin{quotation}
+\noindent ``\emph{quote}''
+\begin{flushright}\textbf{auteur, date}\end{flushright}
+\end{quotation}
+
+\vspace*{0.5cm}
+
+\section{Reinforcement Learning : problem definition}
+Reinforcement learning is a field of machine learning inspired by psychology.
+It studies how an agent learns to maximize the cumulative reward it receives
+from an environment in which it takes given actions. 
+
+\subsection{Markov Decision Processes}
+A reinforcement learning problem can be formally defined as a Markov 
+Decision Process (MDP) \index{MDP} characterised by :
+\begin{itemize}
+	\item a set of states $\mathcal{S}$
+	\item a set of actions $\mathcal{A}$
+	\item a transition function 
+		$T(s, a, s') = P(s_{t+1} = s' \mid s_t = s, a_t = a)$
+	\item a reward function 
+		$r(s, a, s') = \mathbb{E}
+		 [r_{t+1} \mid s_t = s, a_t = a, s_{t+1} = s']$
+\end{itemize}
+
+The goal of reinforcement learning is for the agent to select, in any state it
+can be in, the action that will lead it to the highest expected reward :
+
+$$ \mathbb{E}[r] = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
+ \sum\limits_{i=0}^\infty \gamma^i r_{t+i}$$
+
+\noindent with the discount factor \index{discount factor} $\gamma \in [0, 1[$.
+The discount factor allows one to tune the agent's behaviour on the
+short-term/long-term spectrum. A discount factor $\gamma=0$ would mean that the
+agent maximises its expected reward for the next transition only whereas a
+discount factor close to one will favor behaviour that maximises long-term
+reward, even if one action leads to a poor reward at first.\\
+
+\subsection{Policy}
+The agent uses a policy $\pi(a \mid s)$ which describes a probability
+distribution over the action set $\mathcal{A}$, determining the probability of
+selecting action $a_i$ from state $s_i$. This policy is 
+\textbf{deterministic} if and only if :
+$$ \forall\, s \in \mathcal{S},\; \exists\, a \in \mathcal{A} : \pi(a \mid s) = 1 $$ 
+\noindent Otherwise, the policy is \textbf{stochastic}.
+
+
+\subsection{Policy Iteration}
+
+\subsection{Value Iteration}
+V, Q
+
+\subsection{Actor-Critic}
+
+
+Advantage
+
