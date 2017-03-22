@@ -9,7 +9,7 @@
 \section{Reinforcement Learning : problem definition}
 Reinforcement learning is a field of machine learning inspired by psychology.
 It studies how an agent learns to maximize the cumulative reward it receives
-from an environment in which it takes given actions. 
+from an environment in which it takes given actions.\\
 
 \begin{figure}[]
 	\centering
@@ -58,7 +58,66 @@ selecting action $a_i$ from state $s_i$. This policy is
 \noindent Otherwise, the policy is \textbf{stochastic}.
 
 
+\section{Neural networks as function approximators}
+Neural networks have been very popular in the reinforcement learning community,
+either to approximate a policy function or to approximate functions that
+estimate the value of states and actions.\\
+
+\subsection{Feedforward neural networks}
+A neural network is a mathematical tool composed of three types of layers : 
+the input layer, hidden layers and the output layer. Each layer is itself
+composed of several "neurons".\\
+
+In the simplest neural networks, such as the one presented in figure 
+\ref{fig:neural_network}, each neuron in one layer is connected to all the
+neurons of the previous layer. To obtain an output from a given input,
+the information will be passed from layer to layer in the following way : 
+each neuron calculates a weighted sum of the outputs of all neurons in the
+previous layer then squashes this weighted sum in an activation function. 
+Hence, the neuron $h_1$ in the network of figure \ref{fig:neural_network}
+outputs:
+$$ f(w_1i_1 + w_2i_2 + w_3i_3) $$
+where $w_1, w_2, w_3$ are the weights corresponding to the connections between
+$i_1, i_2, i_3$ and $h_1$. The activation function $f(\cdot)$ can be chosen 
+arbitrarily but it is
+the same for all the neurons in the same layer. The most popular options are
+the sigmoid function, the hyperbolic tangent function and sometimes a linear
+function.
+
+A neural network is taught to approximate a function on a training
+set of samples. Learning is performed by alternating feedforward passes and 
+backpropagation, modifiying the weights of the connections between neurons until
+the network reaches a satisfying accuracy.
+
+\begin{enumerate}
+	\item the feedforward pass computes the network output from the sample
+		input data
+	\item the network output is compared with the sample output and the
+		error signal is backpropagated through the network, updating
+		all the weights
+
+Backpropagation is a fundamental part of training a neural network but its
+explanation is out of the scope of this work.
+	
+\end{enumerate}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.6\linewidth]{fig/neural_network.eps}
+	\caption{A neural network with one input layer composed of three neurons,
+	one hidden layer of 4 neurons, and one output layer with 2 neurons.}
+	\label{fig:neural_network}
+\end{figure}
+
+\subsection{Backpropagation}
+
+\subsection{Recurrent (unroll)}
+
+\todo{universal function approximators}
+
 \subsection{Policy Iteration}
+In a reinforcement learning setting, the agent usually starts off with a random
+policy 
 
 \subsection{Value Iteration}
 V, Q
