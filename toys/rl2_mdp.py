@@ -58,10 +58,11 @@ class RL2():
         self.entropy_mul = tf.placeholder(tf.float32)
         self.loss = -tf.log(tf.reduce_sum(tf.reduce_sum(
                 self.actions_distribution * self.action_choices_OH, 2
-            ) * (self.reward-self.value_function)) +1e-10) + 0.05 * self.value_loss - entropy*self.entropy_mul # avoid log(0) with +1e-10
+            ) * (self.reward-self.value_function)) +1e-10) + 0.5 * self.value_loss - entropy*self.entropy_mul # avoid log(0) with +1e-10
         self.loss = tf.Print(self.loss, [self.loss], "Loss: ")
         #  total_loss = self.value_loss + self.loss
-        self.train_step = tf.train.RMSPropOptimizer(1e-4).minimize(self.loss)
+        self.learning_rate = tf.placeholder(tf.float32)
+        self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
     def embed_input(self):
         self.action_choices = tf.cast(
@@ -86,18 +87,18 @@ def train():
     tf.reset_default_graph()
     distribution_size = 10
     n_arms = 2
-    n_trials = int(15e3)
+    n_trials = int(100e3)
     n_episodes_per_trial = 8
     episode_length = 100
 
     nn = RL2(n_arms)
-    image = np.zeros((500, episode_length))
-    pull_image = np.zeros((500, episode_length))
+    image = np.zeros((1000, episode_length))
+    pull_image = np.zeros((1000, episode_length))
     image_line = 0
 
     start_entropy = 1.0
     end_entropy = 0.0
-    end_entropy_iteration = 2000
+    end_entropy_iteration = 1
 
     bandits_distrib = [generate_n_bandits(n_arms) for i in range(distribution_size)]
 
@@ -199,12 +200,18 @@ def train():
 
             entropymul = max(end_entropy, start_entropy - (start_entropy-end_entropy) * t/ end_entropy_iteration)
             print("ENTROPY :", entropymul)
+            learning_rate = 1e-3
+            if t > 500:
+                learning_rate = 1e-4
+            if t > 1000:
+                learning_rate = 1e-5
             feed_dict={
                 nn.batch_size : n_episodes_per_trial,
                 nn.sequence_length : episode_length,
                 nn.input : np.array(inputs),
                 nn.reward : np.array(list(map(lambda r:discount(r, 0.99), rewards))),
-                nn.entropy_mul : entropymul
+                nn.entropy_mul : entropymul,
+                nn.learning_rate : learning_rate,
             }
             #  if start_hidden_state is not None:
                 #  feed_dict[nn.initial_state] = start_hidden_state
@@ -223,9 +230,9 @@ def train():
                 plt.show()
 
             if t%100 == 0:
-                plt.figure(1); plt.savefig('fig2/optimality.png')
-                plt.figure(2); plt.savefig('fig2/reward.pdf')
-                plt.figure(3); plt.savefig('fig2/pulls.png')
+                plt.figure(1); plt.savefig('fig3/optimality.png')
+                plt.figure(2); plt.savefig('fig3/reward.pdf')
+                plt.figure(3); plt.savefig('fig3/pulls.png')
 
 
 if __name__ == "__main__":
