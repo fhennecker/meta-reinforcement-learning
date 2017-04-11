@@ -95,6 +95,47 @@ def discount(rewards, gamma):
     return discounted_rewards
 
 
+
+def test():
+    with tf.Session() as sess:
+        nn = RL2(2)
+        saver = tf.train.Saver()
+        saver.restore(sess, './training/agent-11000')
+        bandit = [0.4, 0.6]
+        random.shuffle(bandit)
+        choice = random.randint(0,1)
+        reward = pull(bandit, choice)
+        hidden_state = None
+        optimal = []
+        
+        for i in range(100):
+            print(bandit, choice, reward)
+            feed_dict = { 
+                    nn.batch_size : 1,
+                    nn.sequence_length: 1,
+                    nn.input : [[[choice, i, reward]] ]
+            }
+            if hidden_state is not None:
+                feed_dict[nn.initial_state] = hidden_state
+            if i == 0 :
+                start_hidden_state = hidden_state
+
+            actions_distribution, hidden_state = sess.run(
+                    [nn.last_actions_distribution, nn.rnn_output_state], feed_dict)
+
+            choice = np.random.choice(2, p=actions_distribution)
+            reward = pull(bandit, choice)
+            optimal.append(choice == np.argmax(bandit))
+
+        print(sum(optimal)/len(optimal))
+
+
+
+
+
+
+
+
 def train():
     tf.reset_default_graph()
     distribution_size = 10
@@ -112,7 +153,7 @@ def train():
     end_entropy = 0.0
     end_entropy_iteration = 1
 
-    summary_writer = tf.summary.FileWriter('bonsoir3')
+    summary_writer = tf.summary.FileWriter('bonsoir4')
 
     bandits_distrib = [generate_n_bandits(n_arms) for i in range(distribution_size)]
 
@@ -125,6 +166,7 @@ def train():
     bandits_distrib = [testb(i) for i in range(n_arms)]
 
     with tf.Session() as sess:
+        saver = tf.train.Saver()
         init = tf.global_variables_initializer()
         sess.run(init)
 
@@ -195,7 +237,7 @@ def train():
                 total_trial_reward += total_episode_reward
 
             print(np.array(inputs).shape)
-            if t%5 == 0 and image_line < image.shape[0]:
+            if t%15 == 0 and image_line < image.shape[0]:
                 pulls = np.array(inputs[-1])[:,0].reshape([1, -1])
                 optimal_pulls = pulls == np.argmax(bandits)
                 quality = np.argsort(bandits)[pulls]
@@ -203,7 +245,7 @@ def train():
                 pull_image[image_line, :] = pulls
                 image_line += 1
                 start = time.time()
-            if t%20 == 0:
+            if t%60 == 0:
                 plt.figure(1)
                 plt.imshow(image, cmap='gray', interpolation='nearest')
                 plt.draw()
@@ -251,6 +293,8 @@ def train():
             summary_writer.add_summary(summary, t)
             summary_writer.flush()
 
+            if t % 1000 == 0:
+                saver.save(sess, "training/agent", global_step=t)
 
             total_trial_reward /= n_episodes_per_trial
             total_trial_rewards.append(total_trial_reward)
@@ -269,6 +313,7 @@ def train():
 
 
 if __name__ == "__main__":
-    train()
+    #  train()
+    test()
 
 
