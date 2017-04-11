@@ -6,7 +6,7 @@
 
 \vspace*{0.5cm}
 
-\section{Reinforcement Learning : problem definition}
+\section{The reinforcement learning problem}
 Reinforcement learning is a field of machine learning inspired by psychology.
 It studies how an agent learns to maximize the cumulative reward it receives
 from an environment in which it takes given actions.\\
@@ -31,6 +31,8 @@ Decision Process (MDP) \index{MDP} characterised by :
 		$r(s, a, s') = \mathbb{E}
 		 [r_{t+1} \mid s_t = s, a_t = a, s_{t+1} = s']$
 \end{itemize}
+For the rest of this paper, we will consider that the transition function is
+deterministic.\\
 
 The goal of reinforcement learning is for the agent to select, in any state it
 can be in, the action that will lead it to the highest expected reward :
@@ -44,7 +46,7 @@ can be in, the action that will lead it to the highest expected reward :
 The discount factor allows one to tune the agent's behaviour on the
 short-term/long-term spectrum. A discount factor $\gamma=0$ would mean that the
 agent maximises its expected reward for the next transition only whereas a
-discount factor close to one will favor behaviour that maximises long-term
+discount factor close to one will favour behaviour that maximises long-term
 reward, even if one action leads to a poor reward at first.\\
 
 \subsection{Policy}
@@ -93,13 +95,14 @@ the network reaches a satisfying accuracy.
 	\item the feedforward pass computes the network output from the sample
 		input data
 	\item the network output is compared with the sample output and the
-		error signal is backpropagated through the network, updating
+		error signal given by a loss function
+		is backpropagated through the network, updating
 		all the weights
+\end{enumerate}
 
 Backpropagation is a fundamental part of training a neural network but its
-explanation is out of the scope of this work.
-	
-\end{enumerate}
+explanation is out of the scope of this work and we will assume that the
+reader is at least somewhat familiar with it.
 
 \begin{figure}[]
 	\centering
@@ -109,20 +112,82 @@ explanation is out of the scope of this work.
 	\label{fig:neural_network}
 \end{figure}
 
-\subsection{Backpropagation}
 
-\subsection{Recurrent (unroll)}
+\subsection{Recurrent neural networks}
+In some cases, it is a good idea to add a feedback loop to a neural network. 
+A feedback loop such as the one shown in figure \ref{fig:rnn}, also called
+a recurrent connection, poses evident issues for the backpropagation algorithm
+since the depth of the neural network can become theoretically infinite.\\
+
+A common way of training recurrent neural networks is to unroll them for a 
+given, finite amount of time steps. The error signal can then be computed
+for the output value at each time step, and backpropagated through all the
+previous input values that affected its computing.\\
+
+Recurrent neural networks are very useful in the context of reinforcement 
+learning because they lay the ground for the memory aspect needed to solve
+some tasks.
+
+\begin{figure}[]
+	\centering
+	\subfloat[][A recurrent connection]{\qquad
+		\includegraphics[width=0.1515\linewidth]{fig/recurrent_neural_network.eps}\qquad}
+	\qquad
+	\subfloat[][An unrolled recurrent neural network]{
+		\includegraphics[width=0.6\linewidth]{fig/recurrent_neural_network_unrolled.eps}}
+	\caption{Recurrent neural networks}
+	\label{fig:rnn}
+\end{figure}
 
 \todo{universal function approximators}
 
-\subsection{Policy Iteration}
-In a reinforcement learning setting, the agent usually starts off with a random
-policy 
+\section{The A3C algorithm}
+To understand A3C \cite{a3c}, which is one of the most popular reinforcement 
+learning algorithms to date, one must first understand the two main groups of
+reinforcement learning methods that sometimes intersect. The first is the 
+group of policy gradient methods, and the second is the group of value 
+methods.
 
-\subsection{Value Iteration}
-V, Q
+\subsection{Policy gradient methods}
+Policy gradient methods are rather straightforward ways of learning to solve a task.
+Training starts with a randomly initialised policy. Let us assume that the
+policy is defined by a neural network of which the input layer is set to 
+receive an observation of the state of the environment. 
+When the agent performs an action chosen with its policy, the environment will
+update its state and the agent will receive an observation of this state as
+well as a reward signal. We can use the reward signal to proportionately
+encourage (if the reward is 
+positive) or discourage (if the reward is negative) taking this action in 
+this specific state. \\
+
+Let $R_t$, the discounted future reward at time step $t$, be the metric
+that we want to maximise. In a policy gradients method, we will update the
+neural network policy directly with :
+$$\alpha \nabla \pi(a \mid s) R_t$$
+in which $\alpha$ is the learning rate.
+
+\subsection{Value methods}
+There is another category of methods which use an estimate of the value of
+actions or states; in other words estimates of their discounted future reward
+$R_t$.\\
+
+The optimal state value function 
+$$ V^*(s) = \mathbb{E}\left[ r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ...  \right]$$
+can be estimated using the Bellman equation in the following way :
+$$ V(s) = \mathbb{E}\left[ r_t + \gamma V(s')\right]$$
+where $s'$ is the state reached after $s$.\\
+
+Indeed, under the condition of optimality, the value of a state is the sum of
+the discounted value of the unique optimal next state and the reward of the 
+transition to that next state.\\
+
+This can be used as an update rule for the $V$ network with a loss similar to :
+$$ \left[V(s) -  \left(r_t + \gamma V(s') \right)\right]^2 $$
+
+\paragraph{V, Q}
 
 \subsection{Actor-Critic}
+
 
 
 Advantage
