@@ -54,9 +54,9 @@ def test():
 
 def train():
     tf.reset_default_graph()
-    summary_writer = tf.summary.FileWriter('summaries/summary')
+    summary_writer = tf.summary.FileWriter('summaries/v2')
 
-    gravities = [0.1, 1, 10]
+    gravities = [1, 10, 100]
 
     n_actions = 2
     statesize = 4
@@ -64,7 +64,7 @@ def train():
 
     # params
     n_trials = int(1e5)
-    n_episodes_per_trial = 30
+    n_episodes_per_trial = 3
     max_ep_length = 100
     GAMMA = 0.9
 
@@ -81,10 +81,7 @@ def train():
             env.gravity = random.choice(gravities)
             hidden_state = None
 
-            inputs = np.zeros((n_episodes_per_trial, max_ep_length, 3))
-            stateinputs = np.zeros((n_episodes_per_trial, max_ep_length, statesize))
-            rewards = np.zeros((n_episodes_per_trial, max_ep_length))
-            values = np.zeros((n_episodes_per_trial, max_ep_length))
+            inputs, stateinputs, rewards, values = [], [], [], []
             episode_lengths = []
 
             average_trial_reward = 0
@@ -104,15 +101,15 @@ def train():
                     observation, reward, done, info = env.step(action)
                     total_episode_reward += reward
 
-                    stateinputs[e, i] = observation
-                    rnn_input = np.array([action, i, reward])
-                    inputs[e, i] = rnn_input
-                    rewards[e, i] = reward
+                    stateinputs.append(observation)
+                    terminated = 1 if done or i == max_ep_length-1 else 0
+                    rnn_input = np.array([action, terminated, reward])
+                    inputs.append(rnn_input)
+                    rewards.append(reward)
 
                     feed_dict = { 
                             nn.batch_size : 1,
                             nn.sequence_length: 1,
-                            nn.episode_lengths: [1],
                             nn.input : [[rnn_input]],
                             nn.state_input: [[observation]],
                     }
@@ -122,7 +119,7 @@ def train():
                     policy, hidden_state, value = sess.run(
                             [nn.last_actions_distribution, nn.rnn_output_state, nn.value_function], 
                             feed_dict)
-                    values[e, i] = value[0][0] 
+                    values.append(value[0][0])
 
                     # choosing action
                     action = np.random.choice(range(n_actions), p=policy)
@@ -135,22 +132,18 @@ def train():
             average_trial_reward /= n_episodes_per_trial
 
             # TRAINING
-            value_plus = np.concatenate((values, np.zeros((n_episodes_per_trial, 1))), axis=1)
-            advantages = []
-            for e in range(n_episodes_per_trial):
-                e_advantages = np.array(rewards[e]) + GAMMA * np.array(value_plus[e][1:]) - np.array(value_plus[e][:-1])
-                e_advanatages = agent.discount(e_advantages, GAMMA)
-                advantages.append(e_advantages)
+            value_plus = values + [0]
+            advantages = np.array(rewards) + GAMMA * np.array(value_plus[1:]) - np.array(value_plus[:-1])
+            advantages = agent.discount(advantages, GAMMA)
 
             feed_dict={
-                nn.batch_size : n_episodes_per_trial,
-                nn.sequence_length : max_ep_length,
-                nn.input : np.array(inputs),
-                nn.state_input: stateinputs,
-                nn.reward : np.array(list(map(lambda r:agent.discount(r, GAMMA), rewards))),
+                nn.batch_size : 1,
+                nn.sequence_length : len(inputs),
+                nn.input : np.array([inputs]),
+                nn.state_input: [stateinputs],
+                nn.reward : [agent.discount(rewards, GAMMA)],
                 nn.learning_rate : 1e-3,
-                nn.advantage : advantages,
-                nn.episode_lengths : episode_lengths,
+                nn.advantage : [advantages],
             }
             summary = tf.Summary()
 
@@ -167,7 +160,7 @@ def train():
             summary_writer.flush()
 
             if t % 1000 == 0:
-                saver.save(sess, "training/agent", global_step=t)
+                saver.save(sess, "training/agent2", global_step=t)
 
 
 if __name__ == "__main__":

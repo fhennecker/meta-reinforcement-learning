@@ -41,12 +41,10 @@ class RL2():
         # defining the recurrent part
         self.cell = tf.nn.rnn_cell.BasicLSTMCell(48)
         self.initial_state = self.cell.zero_state(self.batch_size, tf.float32)
-        self.episode_lengths = tf.placeholder(tf.int32, shape=[None])
         
         self.rnn_output, self.rnn_output_state = tf.nn.dynamic_rnn(
                 self.cell,
                 self.embedded_input,
-                sequence_length= self.episode_lengths,
                 initial_state=self.initial_state
         )
 
@@ -60,8 +58,7 @@ class RL2():
         # loss function
         reward = self.reward = tf.placeholder(tf.float32, shape=[None, None]) # discounted sums
 
-        loss_mask = tf.cast(tf.sequence_mask(self.episode_lengths, 100), tf.float32)
-        self.value_loss = tf.reduce_sum(tf.square(reward-self.value_function)*loss_mask)
+        self.value_loss = tf.reduce_sum(tf.square(reward-self.value_function))
         self.value_loss = tf.Print(self.value_loss, [self.value_loss], "Voss: ")
         
 
@@ -72,7 +69,7 @@ class RL2():
         #  self.advantage = discount(self.reward - self.value_function
         self.advantage = tf.placeholder(tf.float32, shape=[None, None])
         self.policy_loss = tf.reduce_sum(-tf.log(tf.reduce_sum(self.actions_distribution * self.chosen_actions, 2)
-            +1e-7) * (self.advantage) * loss_mask)
+            +1e-7) * (self.advantage))
         self.loss = self.policy_loss + 0.5 * self.value_loss - self.entropy*0.05#self.entropy_mul # avoid log(0) with +1e-10
         self.loss = tf.Print(self.loss, [self.loss, self.loss/100], "Loss: ")
         #  total_loss = self.value_loss + self.loss
