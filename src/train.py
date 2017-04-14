@@ -54,9 +54,10 @@ def test():
 
 def train():
     tf.reset_default_graph()
-    summary_writer = tf.summary.FileWriter('summaries/v2')
+    summary_writer = tf.summary.FileWriter('summaries/grav_lens')
 
-    gravities = [1, 10, 100]
+    gravities = [1, 10]
+    pole_lenghts = [0.5, 2, 5]
 
     n_actions = 2
     statesize = 4
@@ -79,6 +80,8 @@ def train():
         for t in range(n_trials):
 
             env.gravity = random.choice(gravities)
+            env.length = random.choice(pole_lenghts)
+            env.polemass_length = env.masspole*env.length
             hidden_state = None
 
             inputs, stateinputs, rewards, values = [], [], [], []
@@ -160,7 +163,7 @@ def train():
             summary_writer.flush()
 
             if t % 1000 == 0:
-                saver.save(sess, "training/agent2", global_step=t)
+                saver.save(sess, "training/grav_len", global_step=t)
 
 
 if __name__ == "__main__":
