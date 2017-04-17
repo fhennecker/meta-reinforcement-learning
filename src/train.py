@@ -13,41 +13,75 @@ import gym
 
 
 def test():
+    tf.reset_default_graph()
+
+    gravities = [1, 10]
+    pole_lenghts = [0.5, 2, 5]
+
+    n_actions = 2
+    statesize = 4
+
+    # params
+    max_ep_length = 200
+    GAMMA = 0.9
+
+    env = gym.make('CartPole-v0')
+
+    final_rewards = []
+
+
     with tf.Session() as sess:
-        nn = RL2(2)
+        nn = agent.RL2(2, 4)
         saver = tf.train.Saver()
-        saver.restore(sess, './training/agent-11000')
-        bandit = [0.4, 0.6]
-        random.shuffle(bandit)
-        choice = random.randint(0,1)
-        reward = pull(bandit, choice)
-        hidden_state = None
-        optimal = []
-        
-        for i in range(100):
-            print(bandit, choice, reward)
-            feed_dict = { 
-                    nn.batch_size : 1,
-                    nn.sequence_length: 1,
-                    nn.input : [[[choice, i, reward]] ]
-            }
-            if hidden_state is not None:
-                feed_dict[nn.initial_state] = hidden_state
-            if i == 0 :
-                start_hidden_state = hidden_state
+        saver.restore(sess, './training/grav_lens_long-9000')
 
-            actions_distribution, hidden_state = sess.run(
-                    [nn.last_actions_distribution, nn.rnn_output_state], feed_dict)
+        for k in range(50):
+            env.gravity = random.choice(gravities)
+            env.length = random.choice(pole_lenghts)
+            env.polemass_length = env.masspole*env.length
+            print("NEW TRIAL", env.gravity, env.length)
 
-            choice = np.random.choice(2, p=actions_distribution)
-            reward = pull(bandit, choice)
-            optimal.append(choice == np.argmax(bandit))
+            hidden_state = None
 
-        print(sum(optimal)/len(optimal))
+            final_rewards.append([])
 
+            for t in range(5):
 
+                env.reset()
+                action = env.action_space.sample()
 
+                total_episode_reward = 0
+                for i in range(max_ep_length):
+                    observation, reward, done, info = env.step(action)
+                    #  env.render()
+                    total_episode_reward += reward
 
+                    feed_dict = { 
+                            nn.batch_size : 1,
+                            nn.sequence_length: 1,
+                            nn.state_input : [[observation]],
+                            nn.input : [[[action, 1 if done else 0, reward]]]
+                    }
+                    if hidden_state is not None:
+                        feed_dict[nn.initial_state] = hidden_state
+                    if i == 0 :
+                        start_hidden_state = hidden_state
+
+                    actions_distribution, hidden_state = sess.run(
+                            [nn.last_actions_distribution, nn.rnn_output_state], feed_dict)
+
+                    action = np.random.choice(2, p=actions_distribution)
+                    if done:
+                        print("Failed.")
+                        break
+                    if i == max_ep_length-1:
+                        print("Succeeded!")
+                final_rewards[-1].append(total_episode_reward)
+
+        plt.ylim([-10, 210])
+        plt.plot(np.transpose(np.array(final_rewards)), color=(1, 0, 0), alpha=0.4)
+        plt.plot(np.mean(np.array(final_rewards), axis=0), linewidth=2)
+        plt.show()
 
 
 
