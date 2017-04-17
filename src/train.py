@@ -15,8 +15,13 @@ import gym
 def test():
     tf.reset_default_graph()
 
-    gravities = [1, 10]
-    pole_lenghts = [0.5, 2, 5]
+    gravities = [10]
+    pole_lenghts = [0.5]
+    state_permutations = [
+            [0, 1, 2, 3],
+            [0, 1, 3, 2],
+            [1, 0, 2, 3]
+    ]
 
     n_actions = 2
     statesize = 4
@@ -33,12 +38,13 @@ def test():
     with tf.Session() as sess:
         nn = agent.RL2(2, 4)
         saver = tf.train.Saver()
-        saver.restore(sess, './training/grav_lens_long-9000')
+        saver.restore(sess, './training/perms-13000')
 
         for k in range(50):
             env.gravity = random.choice(gravities)
             env.length = random.choice(pole_lenghts)
             env.polemass_length = env.masspole*env.length
+            perm = random.choice(state_permutations)
             print("NEW TRIAL", env.gravity, env.length)
 
             hidden_state = None
@@ -53,6 +59,7 @@ def test():
                 total_episode_reward = 0
                 for i in range(max_ep_length):
                     observation, reward, done, info = env.step(action)
+                    observation = np.array(observation)[perm]
                     #  env.render()
                     total_episode_reward += reward
 
@@ -88,10 +95,15 @@ def test():
 
 def train():
     tf.reset_default_graph()
-    summary_writer = tf.summary.FileWriter('summaries/grav_lens')
+    summary_writer = tf.summary.FileWriter('summaries/perms')
 
-    gravities = [1, 10]
-    pole_lenghts = [0.5, 2, 5]
+    gravities = [10]
+    pole_lenghts = [0.5]
+    state_permutations = [
+            [0, 1, 2, 3],
+            [0, 1, 3, 2],
+            [1, 0, 2, 3]
+    ]
 
     n_actions = 2
     statesize = 4
@@ -99,8 +111,8 @@ def train():
 
     # params
     n_trials = int(1e5)
-    n_episodes_per_trial = 3
-    max_ep_length = 100
+    n_episodes_per_trial = 5
+    max_ep_length = 200
     GAMMA = 0.9
 
     env = gym.make('CartPole-v0')
@@ -111,11 +123,12 @@ def train():
         sess.run(init)
 
 
-        for t in range(n_trials):
+        for t in range(12000, n_trials):
 
             env.gravity = random.choice(gravities)
             env.length = random.choice(pole_lenghts)
             env.polemass_length = env.masspole*env.length
+            perm = random.choice(state_permutations)
             hidden_state = None
 
             inputs, stateinputs, rewards, values = [], [], [], []
@@ -136,6 +149,7 @@ def train():
                 while i < max_ep_length and not done:
 
                     observation, reward, done, info = env.step(action)
+                    observation = np.array(observation)[perm]
                     total_episode_reward += reward
 
                     stateinputs.append(observation)
@@ -197,11 +211,9 @@ def train():
             summary_writer.flush()
 
             if t % 1000 == 0:
-                saver.save(sess, "training/grav_len", global_step=t)
+                saver.save(sess, "training/perms", global_step=t)
 
 
 if __name__ == "__main__":
-    train()
-    #  test()
-
-
+    #  train()
+    test()
