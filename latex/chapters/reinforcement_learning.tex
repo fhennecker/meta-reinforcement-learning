@@ -1,4 +1,4 @@
-\chapter{Background}
+\chapter{Reinforcement Learning}
 \begin{quotation}
 \noindent ``\emph{quote}''
 \begin{flushright}\textbf{auteur, date}\end{flushright}
@@ -73,9 +73,21 @@ not a learning agent. This thesis will explore ways to teach an agent to learn
 to solve tasks.
 
 \section{The reinforcement learning problem}
-Reinforcement learning is a field of machine learning inspired by psychology.
-It studies how an agent learns to maximize the cumulative reward it receives
-from an environment in which it takes given actions.\\
+A reinforcement learning setting sees two main components interact : the agent
+and the environment. The environment can be in several states which the agent
+can observe (for example in the CartPole problem : the cart can be in several 
+positions and have different velocities, and the pole has similar 
+characteristics). In some problems, the agent might not be able to observe the
+full state of the environment.\\
+
+The agent chooses actions based on its knowledge of the state of the
+environment. These actions might (and often do) alter the state of the
+environment, but will also generate a reward. In the CartPole problem, the 
+reward is +1 every tick the pole is above a certain angle, 0 otherwise.\\
+
+With this simple setting, of which a diagram is shown in Figure~\ref{fig:rl},
+we can design algorithms that can be trained to solve a huge variety of tasks
+without ever having to include task-specific logic to the algorithm.
 
 \begin{figure}[]
 	\centering
@@ -125,136 +137,7 @@ selecting action $a_i$ from state $s_i$. This policy is
 \end{equation}
 \noindent Otherwise, the policy is \textbf{stochastic}.
 
-
-\section{Neural networks as function approximators}
-Neural networks have been very popular in the reinforcement learning community,
-either to approximate a policy function or to approximate functions that
-estimate the value of states and actions.\\
-
-\subsection{Feedforward neural networks}
-A neural network is a mathematical tool composed of three types of layers : 
-the input layer, hidden layers and the output layer. Each layer is itself
-composed of several "neurons".\\
-
-In the simplest neural networks, such as the one presented in figure 
-\ref{fig:neural_network}, each neuron in one layer is connected to all the
-neurons of the previous layer. To obtain an output from a given input,
-the information will be passed from layer to layer in the following way : 
-each neuron calculates a weighted sum of the outputs of all neurons in the
-previous layer then squashes this weighted sum in an activation function. 
-Hence, the neuron $h_1$ in the network of figure \ref{fig:neural_network}
-outputs:
-$$ f(w_1i_1 + w_2i_2 + w_3i_3) $$
-where $w_1, w_2, w_3$ are the weights corresponding to the connections between
-$i_1, i_2, i_3$ and $h_1$. The activation function $f(\cdot)$ can be chosen 
-arbitrarily but it is
-the same for all the neurons in the same layer. The most popular options are
-the sigmoid function, the hyperbolic tangent function and sometimes a linear
-function.
-
-A neural network is taught to approximate a function on a training
-set of samples. Learning is performed by alternating feedforward passes and 
-backpropagation, modifiying the weights of the connections between neurons until
-the network reaches a satisfying accuracy.
-
-\begin{enumerate}
-	\item the feedforward pass computes the network output from the sample
-		input data
-	\item the network output is compared with the sample output and the
-		error signal given by a loss function
-		is backpropagated through the network, updating
-		all the weights
-\end{enumerate}
-
-Backpropagation is a fundamental part of training a neural network but its
-explanation is out of the scope of this work and we will assume that the
-reader is at least somewhat familiar with it.
-
-\begin{figure}[]
-	\centering
-	\includegraphics[width=0.6\linewidth]{fig/neural_network.eps}
-	\caption{A neural network with one input layer composed of three neurons,
-	one hidden layer of 4 neurons, and one output layer with 2 neurons.}
-	\label{fig:neural_network}
-\end{figure}
+\section{An example : the 2-armed bandit problem}
 
 
-\subsection{Recurrent neural networks}
-In some cases, it is a good idea to add a feedback loop to a neural network. 
-A feedback loop such as the one shown in figure \ref{fig:rnn}, also called
-a recurrent connection, poses evident issues for the backpropagation algorithm
-since the depth of the neural network can become theoretically infinite.\\
-
-A common way of training recurrent neural networks is to unroll them for a 
-given, finite amount of time steps. The error signal can then be computed
-for the output value at each time step, and backpropagated through all the
-previous input values that affected its computing.\\
-
-Recurrent neural networks are very useful in the context of reinforcement 
-learning because they lay the ground for the memory aspect needed to solve
-some tasks.
-
-\begin{figure}[]
-	\centering
-	\subfloat[][A recurrent connection]{\qquad
-		\includegraphics[width=0.1515\linewidth]{fig/recurrent_neural_network.eps}\qquad}
-	\qquad
-	\subfloat[][An unrolled recurrent neural network]{
-		\includegraphics[width=0.6\linewidth]{fig/recurrent_neural_network_unrolled.eps}}
-	\caption{Recurrent neural networks}
-	\label{fig:rnn}
-\end{figure}
-
-\todo{universal function approximators}
-
-\section{The A3C algorithm}
-To understand A3C \cite{a3c}, which is one of the most popular reinforcement 
-learning algorithms to date, one must first understand the two main groups of
-reinforcement learning methods that sometimes intersect. The first is the 
-group of policy gradient methods, and the second is the group of value 
-methods.
-
-\subsection{Policy gradient methods}
-Policy gradient methods are rather straightforward ways of learning to solve a task.
-Training starts with a randomly initialised policy. Let us assume that the
-policy is defined by a neural network of which the input layer is set to 
-receive an observation of the state of the environment. 
-When the agent performs an action chosen with its policy, the environment will
-update its state and the agent will receive an observation of this state as
-well as a reward signal. We can use the reward signal to proportionately
-encourage (if the reward is 
-positive) or discourage (if the reward is negative) taking this action in 
-this specific state. \\
-
-Let $R_t$, the discounted future reward at time step $t$, be the metric
-that we want to maximise. In a policy gradients method, we will update the
-neural network policy directly with :
-$$\alpha \nabla \pi(a \mid s) R_t$$
-in which $\alpha$ is the learning rate.
-
-\subsection{Value methods}
-There is another category of methods which use an estimate of the value of
-actions or states; in other words estimates of their discounted future reward
-$R_t$.\\
-
-The optimal state value function 
-$$ V^*(s) = \mathbb{E}\left[ r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ...  \right]$$
-can be estimated using the Bellman equation in the following way :
-$$ V(s) = \mathbb{E}\left[ r_t + \gamma V(s')\right]$$
-where $s'$ is the state reached after $s$.\\
-
-Indeed, under the condition of optimality, the value of a state is the sum of
-the discounted value of the unique optimal next state and the reward of the 
-transition to that next state.\\
-
-This can be used as an update rule for the $V$ network with a loss similar to :
-$$ \left[V(s) -  \left(r_t + \gamma V(s') \right)\right]^2 $$
-
-\paragraph{V, Q}
-
-\subsection{Actor-Critic}
-
-
-
-Advantage
 

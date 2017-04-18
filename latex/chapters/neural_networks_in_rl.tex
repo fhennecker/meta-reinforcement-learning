@@ -1,0 +1,61 @@
+\chapter{Neural Networks and Reinforcement learning}
+\begin{quotation}
+\noindent ``\emph{quote}''
+\begin{flushright}\textbf{auteur, date}\end{flushright}
+\end{quotation}
+
+\vspace*{0.5cm}
+
+
+\section{Policy gradient methods}
+Policy gradient methods are rather straightforward ways of learning to solve a task.
+Training starts with a randomly initialised policy. Let us assume that the
+policy is defined by a neural network of which the input layer is set to 
+receive an observation of the state of the environment. 
+When the agent performs an action chosen with its policy, the environment will
+update its state and the agent will receive an observation of this state as
+well as a reward signal. We can use the reward signal to proportionately
+encourage (if the reward is 
+positive) or discourage (if the reward is negative) taking this action in 
+this specific state. \\
+
+Let $R_t$, the discounted future reward at time step $t$, be the metric
+that we want to maximise. In a policy gradients method, we will update the
+neural network policy directly with :
+$$\alpha \nabla \pi(a \mid s) R_t$$
+in which $\alpha$ is the learning rate.
+
+\section{Value methods}
+There is another category of methods which use an estimate of the value of
+actions or states; in other words estimates of their discounted future reward
+$R_t$.\\
+
+The optimal state value function 
+$$ V^*(s) = \mathbb{E}\left[ r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ...  \right]$$
+can be estimated using the Bellman equation in the following way :
+$$ V(s) = \mathbb{E}\left[ r_t + \gamma V(s')\right]$$
+where $s'$ is the state reached after $s$.\\
+
+Indeed, under the condition of optimality, the value of a state is the sum of
+the discounted value of the unique optimal next state and the reward of the 
+transition to that next state.\\
+
+This can be used as an update rule for the $V$ network with a loss similar to :
+$$ \left[V(s) -  \left(r_t + \gamma V(s') \right)\right]^2 $$
+
+\paragraph{V, Q}
+
+\section{Actor-Critic}
+
+\section{The A3C algorithm}
+To understand A3C \cite{a3c}, which is one of the most popular reinforcement 
+learning algorithms to date, one must first understand the two main groups of
+reinforcement learning methods that sometimes intersect. The first is the 
+group of policy gradient methods, and the second is the group of value 
+methods.
+
+
+
+
+Advantage
+
