@@ -38,7 +38,7 @@ def test():
     with tf.Session() as sess:
         nn = agent.RL2(2, 4)
         saver = tf.train.Saver()
-        saver.restore(sess, './training/perms-13000')
+        saver.restore(sess, './training/perms-58000')
 
         for k in range(50):
             env.gravity = random.choice(gravities)
