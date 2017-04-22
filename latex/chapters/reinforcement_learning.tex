@@ -69,9 +69,48 @@ selecting action $a_i$ from state $s_i$. This policy is
 \begin{equation}
 \forall\, s \in \mathcal{S},\; \exists\, a \in \mathcal{A} : \pi(a \mid s) = 1
 \end{equation}
-\noindent Otherwise, the policy is \textbf{stochastic}.
+\noindent In other words : in any state, only one action can be selected.
+Otherwise, the policy is \textbf{stochastic}.
 
 \section{An example : the 2-armed bandit problem}
+The 2-armed bandit setting defines two actions that the agent can perform,
+each of which associated with one arm. Each arm has an underlying reward
+distribution -- for the sake of this example, let us define each arm with the
+following Bernoulli distributions: 
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c|c}
+		Arm \#1 & Arm \#2 \\ \hline
+		0.9 & 0.1
+	\end{tabular}
+\end{table}
+
+\noindent This means that arm \#1 will generate a reward of 1 with a probability
+of 0.9 and arm \#2 will generate a reward of 1 with a probability of 0.1.\\
+
+The careful reader will have noticed that this problem is stateless 
+($\mathcal{S} = \{\varnothing\}$), meaning that the agent only perceives
+rewards.\\
+
+Of course, before its first interaction with the environment, the agent has no
+information whatsoever about the reward distribution of each arm, and the whole
+idea of reinforcement learning is to look for evermore efficient ways to learn
+the structure and parameters of a problem in order to maximise reward.\\
+
+One could imagine a simple strategy like the following : play each arm 10 times,
+then always play the arm with the highest average reward. This could work in
+our case, but might fail in cases where the distributions are much closer
+(e.g. 0.45 and 0.55). What if the reward was sampled out of overlapping normal
+distributions?\\
+
+Deciding whether the following action should be used to explore the environment
+and gain information about it; or to exploit the information already available
+to try to maximise reward is not trivial. Exploring could make training slower
+or affect the reward if our model of the environment is correct, but it is 
+needed to increase the probability that we have indeed a correct model. This
+tradeoff is called the exploration/exploitation tradeoff. 
+
 
 
 
