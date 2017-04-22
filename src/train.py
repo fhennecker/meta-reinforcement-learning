@@ -101,7 +101,7 @@ def test():
 
 def train():
     tf.reset_default_graph()
-    summary_writer = tf.summary.FileWriter('summaries/perms')
+    #  summary_writer = tf.summary.FileWriter('summaries/perms')
 
     gravities = [10]
     pole_lenghts = [0.5]
@@ -123,16 +123,20 @@ def train():
 
     env = gym.make('CartPole-v0')
 
+    results_file = open('results.txt', 'w')
+
     with tf.Session() as sess:
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=100)
         init = tf.global_variables_initializer()
         sess.run(init)
 
 
-        for t in range(12000, n_trials):
+        for t in range(n_trials):
 
-            env.gravity = random.choice(gravities)
-            env.length = random.choice(pole_lenghts)
+            gravity = random.choice(gravities)
+            length = random.choice(pole_lenghts)
+            env.gravity = gravity
+            env.length = length
             env.polemass_length = env.masspole*env.length
             perm = random.choice(state_permutations)
             hidden_state = None
@@ -140,7 +144,7 @@ def train():
             inputs, stateinputs, rewards, values = [], [], [], []
             episode_lengths = []
 
-            average_trial_reward = 0
+            trial_rewards = []
 
             for e in range(n_episodes_per_trial):
 
@@ -184,9 +188,8 @@ def train():
                     i += 1
 
                 episode_lengths.append(i)
-                average_trial_reward += total_episode_reward
+                trial_rewards.append(total_episode_reward)
 
-            average_trial_reward /= n_episodes_per_trial
 
             # TRAINING
             value_plus = values + [0]
@@ -208,18 +211,22 @@ def train():
                     [nn.loss, nn.train_step, nn.value_loss, nn.policy_loss, nn.entropy],
                     feed_dict)
             print(loss, total_episode_reward)
-            summary.value.add(tag='Losses/Loss', simple_value=float(loss))
-            summary.value.add(tag='Losses/ValueLoss', simple_value=float(vl))
-            summary.value.add(tag='Losses/PolicyLoss', simple_value=float(pl))
-            summary.value.add(tag='Losses/Entropy', simple_value=float(el))
-            summary.value.add(tag='Reward/AverageReward', simple_value=average_trial_reward)
-            summary_writer.add_summary(summary, t)
-            summary_writer.flush()
+            results_file.write(
+                    str(t)+':'+str(gravity)+':'+str(length)+':'+str(perm)+':'+
+                    str([loss, vl, pl, el] + trial_rewards)+'\n')
+            #  summary.value.add(tag='Losses/Loss', simple_value=float(loss))
+            #  summary.value.add(tag='Losses/ValueLoss', simple_value=float(vl))
+            #  summary.value.add(tag='Losses/PolicyLoss', simple_value=float(pl))
+            #  summary.value.add(tag='Losses/Entropy', simple_value=float(el))
+            #  summary.value.add(tag='Reward/AverageReward', simple_value=average_trial_reward)
+            #  summary_writer.add_summary(summary, t)
+            #  summary_writer.flush()
 
             if t % 1000 == 0:
-                saver.save(sess, "training/perms", global_step=t)
+                saver.save(sess, "training/null", global_step=t)
+        results_file.close()
 
 
 if __name__ == "__main__":
-    #  train()
-    test()
+    train()
+    #  test()
