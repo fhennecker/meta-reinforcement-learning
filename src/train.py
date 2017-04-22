@@ -15,13 +15,16 @@ import gym
 def test():
     tf.reset_default_graph()
 
-    gravities = [10]
-    pole_lenghts = [0.5]
-    state_permutations = [
-            [0, 1, 2, 3],
-            [0, 1, 3, 2],
-            [1, 0, 2, 3]
-    ]
+    gravities = [1, 10]
+    pole_lenghts = [0.5, 2, 5]
+    #  state_permutations = [
+            #  [0, 1, 2, 3],
+            #  [0, 1, 3, 2],
+            #  [1, 0, 2, 3]
+    #  ]
+    #  state_permutations = [
+            #  [0, 1, 2, 3]
+    #  ]
 
     n_actions = 2
     statesize = 4
@@ -38,28 +41,33 @@ def test():
     with tf.Session() as sess:
         nn = agent.RL2(2, 4)
         saver = tf.train.Saver()
-        saver.restore(sess, './training/perms-58000')
+        saver.restore(sess, './training/grav_lens_long-99000')
 
         for k in range(50):
             env.gravity = random.choice(gravities)
             env.length = random.choice(pole_lenghts)
             env.polemass_length = env.masspole*env.length
-            perm = random.choice(state_permutations)
+            #  perm = random.choice(state_permutations)
             print("NEW TRIAL", env.gravity, env.length)
 
             hidden_state = None
 
             final_rewards.append([])
+            trained_agent = None
 
-            for t in range(5):
+            for t in range(20):
 
                 env.reset()
                 action = env.action_space.sample()
+                #  if t == 4:
+                    #  trained_agent = hidden_state
+                #  if t > 4:
+                    #  hidden_state = trained_agent
 
                 total_episode_reward = 0
                 for i in range(max_ep_length):
                     observation, reward, done, info = env.step(action)
-                    observation = np.array(observation)[perm]
+                    #  observation = np.array(observation)[perm]
                     #  env.render()
                     total_episode_reward += reward
 
@@ -71,8 +79,6 @@ def test():
                     }
                     if hidden_state is not None:
                         feed_dict[nn.initial_state] = hidden_state
-                    if i == 0 :
-                        start_hidden_state = hidden_state
 
                     actions_distribution, hidden_state = sess.run(
                             [nn.last_actions_distribution, nn.rnn_output_state], feed_dict)
