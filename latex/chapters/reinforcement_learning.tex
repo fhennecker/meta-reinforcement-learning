@@ -99,7 +99,9 @@ idea of reinforcement learning is to look for evermore efficient ways to learn
 the structure and parameters of a problem in order to maximise reward.\\
 
 One could imagine a simple strategy like the following : play each arm 10 times,
-then always play the arm with the highest average reward. This could work in
+then always play the arm with the highest average reward. This policy is
+deterministic, and yields either $ \pi(a_1) = 1$ and $\pi(a_2) = 0$ or
+$\pi(a_1) = 0$ and $\pi(a_2) = 1$. This could work in
 our case, but might fail in cases where the distributions are much closer
 (e.g. 0.45 and 0.55). What if the reward was sampled out of overlapping normal
 distributions?\\

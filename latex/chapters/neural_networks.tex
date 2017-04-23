@@ -8,30 +8,63 @@
 
 
 Neural networks have been very popular in the reinforcement learning community,
-either to approximate a policy function or to approximate functions that
+either to directly approximate policy functions or to approximate functions that
 estimate the value of states and actions.\\
 
 \section{Feedforward neural networks}
-A neural network is a mathematical tool composed of three types of layers : 
-the input layer, hidden layers and the output layer. Each layer is itself
-composed of several "neurons".\\
+A neural network is a collection of interconnected \textit{neurons}. One of the
+simplest and most widely used networks are feedforward neural networks. In this
+setting, neurons are arranged into ordered layers of which the first one is
+called the input layer, and the last one is called the output layer.
+The first possible way of using neural networks for reinforcement learning
+is to feed the observed state of the environment to the input layer, and to
+use the normalised output of the network as a policy (a probability distribution
+over the actions set).
 
-In the simplest neural networks, such as the one presented in Figure~
-\ref{fig:neural_network}, each neuron in one layer is connected to all the
-neurons of the previous layer. To obtain an output from a given input,
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.6\linewidth]{fig/neural_network.eps}
+	\caption{A neural network with one input layer composed of three neurons,
+	one hidden layer of 4 neurons, and one output layer with 2 neurons.}
+	\label{fig:neural_network}
+\end{figure}
+
+
+In a feedforward neural network, each neuron is connected to every neuron in 
+the next layer.  To obtain an output from a given input,
 the information will be passed from layer to layer in the following way : 
-each neuron calculates a weighted sum of the outputs of all neurons in the
+each neuron computes a weighted sum of the outputs of all neurons in the
 previous layer then squashes this weighted sum in an activation function. 
 Hence, the neuron $h_1$ in the network of Figure~\ref{fig:neural_network}
 outputs:
-$$ f(w_1i_1 + w_2i_2 + w_3i_3) $$
+$$ f(w_1i_1 + w_2i_2 + w_3i_3 + b) $$
 where $w_1, w_2, w_3$ are the weights corresponding to the connections between
-$i_1, i_2, i_3$ and $h_1$. The activation function $f(\cdot)$ can be chosen 
-arbitrarily but it is
-the same for all the neurons in the same layer. The most popular options are
+$i_1, i_2, i_3$ and $h_1$; and $b$ is a bias term. 
+These weights are the learnable parameters of any neural network and will be 
+tuned during training to improve the accuracy of the network. 
+The activation function $f(\cdot)$ can be chosen arbitrarily but it is
+the same for all the neurons in the same layer. Some options are
 the sigmoid function, the hyperbolic tangent function and sometimes a linear
-function.
+function.\\
 
+The reader might have noticed that using matrices is an efficient way of writing
+and executing computations within a neural network. Indeed, one could write
+the computation between the input layer and the first hidden layer as: 
+
+$$ h = f(iW_{ih} + b_h) $$
+
+\noindent where : 
+\begin{itemize}
+	\item $h$ is a $1\times n$ vector containing the values of the neurons 
+		in the hidden layer
+	\item $i$ is a $1\times m$ vector containing the values of the neurons
+		in the input layer
+	\item $W_{ih}$ is a $m\times n$ matrix containing the weights between
+		the input and hidden layer
+	\item $b_h$ is the $1\times n$ bias vector 
+\end{itemize}
+
+\subsection{Training}
 A neural network is taught to approximate a function on a training
 set of samples. Learning is performed by alternating feedforward passes and 
 backpropagation, modifiying the weights of the connections between neurons until
@@ -46,34 +79,40 @@ the network reaches a satisfying accuracy.
 		all the weights
 \end{enumerate}
 
-\subsection{Backpropagation}
-Backpropagation is a fundamental part of training a neural network but its
-explanation is out of the scope of this work and we will assume that the
-reader is at least somewhat familiar with it.
+Backpropagation uses the fact that activation functions are differentiable to
+perform gradient descent. Indeed, the error signal is a surface in a space
+of which the dimensionality is equal to the number of parameters in the
+network. Gradient descent aims to find the global minimum of this error
+surface.\\
 
-\begin{figure}[]
-	\centering
-	\includegraphics[width=0.6\linewidth]{fig/neural_network.eps}
-	\caption{A neural network with one input layer composed of three neurons,
-	one hidden layer of 4 neurons, and one output layer with 2 neurons.}
-	\label{fig:neural_network}
-\end{figure}
+\todo{Explain backprop?}
 
 
 \section{Recurrent neural networks}
-In some cases, it is a good idea to add a feedback loop to a neural network. 
-A feedback loop such as the one shown in Figure~\ref{fig:rnn}, also called
-a recurrent connection, poses evident issues for the backpropagation algorithm
-since the depth of the neural network can become theoretically infinite.\\
+There is one limitation to feedforward neural networks which is particularly
+critical for reinforcement learning applications. In many environments, the
+present state does not carry enough information for the agent to make an
+optimal decision. History and memory are necessary and cannot exist within
+the framework of feedforward neural networks -- unless by inputting a fixed
+number of previous states along with the present state. This approach however
+limits the scope of the memory but also increases dramatically the complexity
+of the model.\\
 
-A common way of training recurrent neural networks is to unroll them for a 
-given, finite amount of time steps. The error signal can then be computed
+One solution to this problem is the use of recurrent neural networks.
+A feedback loop such as the one shown in Figure~\ref{fig:rnn}a, also called
+a recurrent connection, means that the layer at the receiving end of the
+recurrent connection will receive as input not only the value of the previous
+layer at time $t$, but also the value of the layer at the giving end of the 
+recurrent connection at time $t-1$. This allows information to \textit{live}
+throughout time steps.\\
+
+A recurrent connection, however, poses evident issues for the backpropagation
+algorithm since the depth of the neural network can become theoretically
+infinite.  A common way of training and visualising recurrent neural networks 
+is to unroll them for a given, finite amount of time steps (see 
+Figure~\ref{fig:rnn}b).  The error signal can then be computed
 for the output value at each time step, and backpropagated through all the
 previous input values that affected its computing.\\
-
-Recurrent neural networks are very useful in the context of reinforcement 
-learning because they lay the ground for the memory aspect needed to solve
-some tasks.
 
 \begin{figure}[]
 	\centering

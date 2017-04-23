@@ -20,7 +20,7 @@ machine learning evolved from an idea to a prolific field of research, and
 some of its topics saw massive application into real world domains.\\
 
 The most popular and widely used machine learning algorithms and techniques
-usually come from what we call supervised and unsupervised machine learning.
+usually come from supervised and unsupervised machine learning.
 The broad goal of supervised machine learning is to find a function that maps
 some input vector $x$ to some output vector $y$. One example of this would be
 to try to categorise patients that either have or don't have some disease. 
@@ -29,29 +29,35 @@ quantity of a given substance in the patient's blood, etc. The output vector
 $y$ would be either $[0]$ if the patient is ill, and $[1]$ if the patient is
 not.\\
 
-If we could find a function mapping $x$ to $y$, we could predict to some
-level of accuracy if a patient is ill or not by only knowing $x$. The general
-algorithm for finding such a function is to define a model which has
+If we could find a function mapping $x$ to $y$, we could compute a probability
+distribution over whether the patient is ill or not only by knowing $x$. 
+Supervised machine learning provides the following general process to find
+such a function : one defines a model which has
 \textit{learnable parameters}; that is values which impact the output of the
-function, and to perform \textbf{training}. The process of training is to
-sample one data point from a \textbf{training set}, containing pairs of input
-vectors and output vectors. We then feed the input vector to our model, compare
+function, and performs \textbf{training}. The process of training is to
+sample data points from a \textbf{training set}, containing pairs of input
+vectors and output vectors. We then feed the input vector to the model, compare
 the output that we get from the model with the output we are supposed to get,
-and tune our learnable parameters so to minimise the error between the model
+and tune the learnable parameters so to minimise the error between the model
 output and the correct output. We repeat this process, showing many samples
-of the training set to our model until it reaches a good enough accuracy.
+of the training set to the model until it reaches a good enough accuracy.
 
 Unsupervised learning, although different from supervised learning as the
 training sets usually do not have output vectors, is more about finding
 structure in the dataset; but we can assume for the sake of this point that
-the process is largely the same.\\
+the process is largely the same : sample data, update learnable parameters
+until the model is fixed at a good enough accuracy and inference can be
+performed data point by data point after training.\\
 
-To the critical reader, unsupervised machine learning and supervised machine
+To the experienced reader, unsupervised machine learning and supervised machine
 learning might sound like fancy names for statistics; and one could argue that
 they are indeed. Perhaps a slightly more interesting topic of machine learning
 would be \textbf{reinforcement learning}. In this setting, we train an agent, 
 which is situated in an environment, to perform actions that will maximise
-a reward given by the environment.\\
+a reward given by the environment. This endeavour is orders of magnitudes more
+complex to handle at first glance. One has to train an agent that has to make
+assumptions about the environment it is situated in, but also set up a
+potentially hierarchical strategy involving several sequences of actions.\\
 
 This process works by letting the agent interact with the environment for many
 sessions, until it figures out what actions, and what sequences of actions lead
@@ -70,9 +76,8 @@ or adapt once the conditions, or some intrinsic parameters of the problem
 change. If we present the CartPole agent with a pole that is twice as heavy,
 or twice as long as the one it has been trained with, it will likely fail to 
 balance the pole. We have taught an agent how to solve one task, but we have
-not taught it to learn how to solve a task. The agent that has been trained is
-not a learning agent. This thesis will explore ways to teach an agent to learn
-to solve tasks.
+not taught it to learn how to solve a task. This thesis will explore ways to 
+teach an agent how to learn to solve tasks.
 
 
 

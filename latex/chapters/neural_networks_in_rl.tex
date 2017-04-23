@@ -11,7 +11,8 @@
 Policy gradient methods are rather straightforward ways of learning to solve a task.
 Training starts with a randomly initialised policy. Let us assume that the
 policy is defined by a neural network of which the input layer is set to 
-receive an observation of the state of the environment. 
+receive an observation of the state of the environment and the output layer
+defines a policy (a probability distribution over the actions set).
 When the agent performs an action chosen with its policy, the environment will
 update its state and the agent will receive an observation of this state as
 well as a reward signal. We can use the reward signal to proportionately
