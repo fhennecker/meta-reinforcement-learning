@@ -12,7 +12,7 @@ either to directly approximate policy functions or to approximate functions that
 estimate the value of states and actions.\\
 
 \section{Feedforward neural networks}
-A neural network is a collection of interconnected \textit{neurons}. One of the
+A neural network is a collection of interconnected \textit{neurons}. The
 simplest and most widely used networks are feedforward neural networks. In this
 setting, neurons are arranged into ordered layers of which the first one is
 called the input layer, and the last one is called the output layer.
@@ -42,8 +42,9 @@ where $w_1, w_2, w_3$ are the weights corresponding to the connections between
 $i_1, i_2, i_3$ and $h_1$; and $b$ is a bias term. 
 These weights are the learnable parameters of any neural network and will be 
 tuned during training to improve the accuracy of the network. 
-The activation function $f(\cdot)$ can be chosen arbitrarily but it is
-the same for all the neurons in the same layer. Some options are
+The activation function $f(\cdot)$ can be chosen arbitrarily, as long as it 
+is differentiable (so that backpropagation can work, see \ref{nn:training})
+but it is the same for all the neurons in the same layer. Some options are
 the sigmoid function, the hyperbolic tangent function and sometimes a linear
 function.\\
 
@@ -65,6 +66,7 @@ $$ h = f(iW_{ih} + b_h) $$
 \end{itemize}
 
 \subsection{Training}
+\label{nn:training}
 A neural network is taught to approximate a function on a training
 set of samples. Learning is performed by alternating feedforward passes and 
 backpropagation, modifiying the weights of the connections between neurons until
@@ -78,6 +80,13 @@ the network reaches a satisfying accuracy.
 		is backpropagated through the network, updating
 		all the weights
 \end{enumerate}
+
+Hence the importance of a \textbf{loss function} \index{loss function}
+which describes numerically the error between the target and the network output.
+This loss function has to be differentiable so that its gradient can be 
+backpropagated through all the neurons in the network in order to 
+minimise the error and nudge the network towards a behaviour we want it to
+display.\\
 
 Backpropagation uses the fact that activation functions are differentiable to
 perform gradient descent. Indeed, the error signal is a surface in a space

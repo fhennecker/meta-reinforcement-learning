@@ -50,7 +50,8 @@ The goal of reinforcement learning is for the agent to select, in any state it
 can be in, the action that will lead it to the highest expected reward :
 
 \begin{equation}
-\mathbb{E}[r] = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
+\label{eq:discounted_reward}
+\mathbb{E}[r] = R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
  \sum\limits_{i=0}^\infty \gamma^i r_{t+i}
 \end{equation}
 
@@ -91,7 +92,7 @@ of 0.9 and arm \#2 will generate a reward of 1 with a probability of 0.1.\\
 
 The careful reader will have noticed that this problem is stateless 
 ($\mathcal{S} = \{\varnothing\}$), meaning that the agent only perceives
-rewards.\\
+rewards and no state observations.\\
 
 Of course, before its first interaction with the environment, the agent has no
 information whatsoever about the reward distribution of each arm, and the whole
