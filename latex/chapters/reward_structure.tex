@@ -17,9 +17,9 @@ always reach optimal or near-optimal performance while all previous episodes
 will receive a reward which corresponds to following a random policy.
 This is confirmed by the plots of Figure~\ref{fig:20permsLR_rewards} which
 show the rewards obtained by playing several trials of 2, 5 and 10 episodes
-(after having trained on trials of equal length) over all the permutations of
-the training set. Only the last episode of the trial will succeed or almost
-succeed.
+(after having trained on trials of corresponding length) over all the
+permutations of the training set. Only the last episode of the trial will
+succeed or almost succeed.
 
 \begin{figure}
 	\centering
@@ -57,7 +57,7 @@ succeed.
 This behaviour is linked to the dynamics of the expected future reward, 
 the chosen discount factor and the reward structure of the environment.
 In our case, the environment gives a constant +1 reward at every timestep of
-an CartPole episode. If we choose a discount factor $\gamma=0.9$, the
+a CartPole episode. If we choose a discount factor $\gamma=0.9$, the
 discounted future reward at timesteps which are more than 50 timesteps away
 from the end of the episode will be almost exactly equal (see 
 Figure~\ref{fig:gamma_impact}).\\
