@@ -5,9 +5,21 @@
 \begin{flushright}\textbf{author}\end{flushright}
 \end{quotation}
 
+Let us now look at why the reward of the first episode in a dual-episode
+trial drops to random policy level when we know the agent is able to receive
+an almost perfect reward in a single-episode trial. To understand why, we will
+keep the same setting as previously \todo{ref to param table}.
 
 \section{Training for more episodes}
-If we train for more episodes, only the last one will climb. 
+There is a recurrent pattern visible in Figure~\ref{fig:20permsLR_training}.
+Indeed, no matter the number of episodes in each trial, the last one will
+always reach optimal or near-optimal performance while all previous episodes
+will receive a reward which corresponds to following a random policy.
+This is confirmed by the plots of Figure~\ref{fig:20permsLR_rewards} which
+show the rewards obtained by playing several trials of 2, 5 and 10 episodes
+(after having trained on trials of equal length) over all the permutations of
+the training set. Only the last episode of the trial will succeed or almost
+succeed.
 
 \begin{figure}
 	\centering
@@ -42,6 +54,22 @@ If we train for more episodes, only the last one will climb.
 \end{figure}
 
 \section{Problems with a 1-per-timestep reward}
+This behaviour is linked to the dynamics of the expected future reward, 
+the chosen discount factor and the reward structure of the environment.
+In our case, the environment gives a constant +1 reward at every timestep of
+an CartPole episode. If we choose a discount factor $\gamma=0.9$, the
+discounted future reward at timesteps which are more than 50 timesteps away
+from the end of the episode will be almost exactly equal (see 
+Figure~\ref{fig:gamma_impact}).\\
+
+This means that if an action that defines whether the episode ends or continues
+at time $t$ has to be taken before time $t-50$, there is no way to link the
+end of the episode with the action that was wrongly taken. This can be turned
+around to say that actions do not really matter as long as the end of the
+constant reward stream is more than 50 timesteps away for $\gamma=0.9$. 
+
+\todo{why episode longer than 200 works?}
+
 
 \section{Tuning discount factor}
 Show different gammas
