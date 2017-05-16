@@ -55,17 +55,34 @@ action.
 	}
 \end{table}
 
-Surprisingly, the agent manages to reach a very good performance level, only
-failing...
+As a control experiment, we first need to check whether the agent can learn
+to discover which permutation of the state has been selected and to keep the
+pole balanced within one single episode. Surprisingly, as shown in 
+Figure~\ref{fig:20perms1ep_training}, the agent quickly manages to reach
+a very good performance level, only failing a small percentage of the time.\\
+
+When the agent is trained on trials of 2 episodes, we expect that its
+performance will improve (however good it already is). Looking at the graph 
+of Figure~\ref{fig:20perms2ep_training}, we can only deduce two things : 
+\begin{enumerate}
+	\item the performance of the first episode of every trial drops 
+		significantly compared to trials of one episode;
+	\item the performance of the second episode of every trial matches
+		closely the performance of single-episode trials.
+\end{enumerate}
+The second of these considerations will be addressed in
+chapter~\ref{chap:reward_structure}. Let us analyse the first one in more detail
+as the average reward graph doesn't give us enough insight in the final
+reward distributions.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.9\linewidth]{fig/20perms1ep_training.pdf}
-	\caption{Training of an agent on trials of 1 episode}
+	\caption{Training of an agent on trials of 1 episode. The curve
+	shows a moving average over 200 trials.}
 	\label{fig:20perms1ep_training}
 \end{figure}
 
-does making it play for several episodes improve performance?
 
 \begin{figure}
 	\centering
@@ -74,14 +91,33 @@ does making it play for several episodes improve performance?
 	\label{fig:20perms2ep_training}
 \end{figure}
 
-Immediately, we see first episode be bad. Why? Discussion of this in section
-with structure reward etc
+Let us compare the final reward distribution for the only episode of 
+single-episode trials and for the second episode of dual-episode trials.
+For now, we are not interested in the reward distribution of the first episode
+in dual-episode trials as we want to see whether or not the agent managed to
+gain knowledge during that first episode (potentially hurting its first episode
+reward) to improve its performance for the second episode.\\
 
-However only seeing the avg reward of second episode doesn't give us enough
-info
+Figure~\ref{fig:20perms_distrib} shows both a histogram and a boxplot describing
+the final reward distributions in the single and dual episode situations. The
+agent played every permutation of the training set for 10 trials, playing 180
+trials in total. Although the difference is slight, and seeing that the number
+of successes (a final reward of 195 or more, corresponding to the uppermost
+bar) is almost exactly the same, there is definitely a difference in when the
+failures occur. For the single episode setting, all failures are distributed
+in a relatively uniform way spanning from 50 to 195; whereas they cluster 
+slightly above 150 in the dual episode setting. The boxplots clearly show
+a more compact distribution (and so a generally higher reward) in the dual
+episode setting.\\
 
-But if we compare distributions of rewards for last episode, we see one 
-performs better than the other. (make clear it's only for seen distributions)
+The agent seems to learn from the first episode to improve its performance in
+the second. This is even clearer when we run the same experiment on unseen
+permutations. As shown on Figure~\ref{fig:20perms_unseen_distrib}, where the
+agent played every permutation of the test set for 30 trials, playing 180
+trials in total to allow for comparison to the previous experiment, the agent
+playing single-episode trials fails more often with a reward around 50. The
+dual-episode setting shows again a capability to learn from the first episode
+to improve performance in the second.\\
 
 \begin{figure}
 	\centering
@@ -92,7 +128,7 @@ performs better than the other. (make clear it's only for seen distributions)
 	\caption{}
 	\label{fig:20perms_distrib}
 \end{figure}
-This is even clearer for unseen permutations.
+\todo{captions}
 
 \begin{figure}
 	\centering
@@ -104,7 +140,15 @@ This is even clearer for unseen permutations.
 	\label{fig:20perms_unseen_distrib}
 \end{figure}
 
-If we add the left-right confusion, this effect is magnified
+Even more impressingly, if we add the inversion of the left and right actions
+with a probability of 0.5 at the start of every trial, this effect is
+tremendously magnified. For seen permutations
+(Figure~\ref{fig:20permsLR_distrib}), there are about 40 more successes (out of
+180) when playing two episodes than when playing only one; for unseen
+permutations, this number climbs to about 70 out of 180. The single-episode
+agent succeeds shy of 100 trials out of 180 where the dual-episode agent
+comes close to 170 out of 180.\\
+
 \begin{figure}
 	\centering
 	\subfloat[][Trials of 1 episode]{
@@ -115,7 +159,6 @@ If we add the left-right confusion, this effect is magnified
 	\label{fig:20permsLR_distrib}
 \end{figure}
 
-Once again, even more so when confronted to unseen permutations.
 \begin{figure}
 	\centering
 	\subfloat[][Trials of 1 episode]{
