@@ -76,6 +76,9 @@ does making it play for several episodes improve performance?
 Immediately, we see first episode be bad. Why? Discussion of this in section
 with structure reward etc
 
+However only seeing the avg reward of second episode doesn't give us enough
+info
+
 But if we compare distributions of rewards for last episode, we see one 
 performs better than the other. (make clear it's only for seen distributions)
 
@@ -97,7 +100,29 @@ This is even clearer for unseen permutations.
 	\subfloat[][Trials of 2 episodes]{
 		\includegraphics[width=0.49\linewidth]{fig/20perms_unseen_distrib_2ep.pdf}}
 	\caption{}
-	\label{fig:20perms_distrib}
+	\label{fig:20perms_unseen_distrib}
+\end{figure}
+
+If we add the left-right confusion, this effect is magnified
+\begin{figure}
+	\centering
+	\subfloat[][Trials of 1 episode]{
+		\includegraphics[width=0.49\linewidth]{fig/20permsLR_distrib_1ep.pdf}}
+	\subfloat[][Trials of 2 episodes]{
+		\includegraphics[width=0.49\linewidth]{fig/20permsLR_distrib_2ep.pdf}}
+	\caption{}
+	\label{fig:20permsLR_distrib}
+\end{figure}
+
+Once again, even more so when confronted to unseen permutations.
+\begin{figure}
+	\centering
+	\subfloat[][Trials of 1 episode]{
+		\includegraphics[width=0.49\linewidth]{fig/20permsLR_unseen_distrib_1ep.pdf}}
+	\subfloat[][Trials of 2 episodes]{
+		\includegraphics[width=0.49\linewidth]{fig/20permsLR_unseen_distrib_2ep.pdf}}
+	\caption{}
+	\label{fig:20permsLR_unseen_distrib}
 \end{figure}
 
 
