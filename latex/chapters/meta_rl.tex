@@ -7,9 +7,13 @@
 \vspace*{0.5cm}
 
 Developing and tuning algorithms to find the optimal strategy to solve a
-reinforcement learning problem is hard. One has to carefully, and often
-manually balance exploration with exploitation. \todo{other issues and
-challenges}\\
+reinforcement learning problem is hard. Some of the challenges one meets are:
+\begin{itemize}
+	\item the tradeoff between exploration and exploitation
+	\item designing a strategy that allows for versatile training
+	\item choosing hyperparameters \todo{define} that make the strategy
+		optimal considering the reinforcement learning problem at hand
+\end{itemize}
 
 Let us consider the problem of learning a simple bandit problem with dependent
 arms. Say, for example, that a bandit has two arms, each of which producing
@@ -20,15 +24,15 @@ where $P(r \mid \text{arm}_1)$ is the probability of arm 1 to generate a reward
 and $0 \leq p_b \leq 1$ is the parameter of the bandit problem. One way to
 solve this problem would be to use the $\epsilon$-greedy strategy. This
 strategy keeps an average of the reward of each earm and chooses the next
-action to perform the following way : choose the action with the best average
+action the following way : choose the action with the best average
 reward so far with probability $(1-\epsilon)$, otherwise choose a random action.
 This raises the question about choosing $\epsilon$. Choosing a low $\epsilon$
 encourages exploitation but we have a higher chance of wrongly estimating $p_b$.
 Choosing a high $\epsilon$ doesn't allow the agent to perform optimally once
 its knowledge about the parameters of the problem is likely to be optimal.
 Moreover, we could choose a variable $\epsilon$, high at first but slowly
-converging to 0, but we then face the number of steps over which $\epsilon$
-should be annealed.\\
+converging to 0, but we then are faced with the choice of another
+hyperparameter : the number of steps over which $\epsilon$ should be annealed.\\
 
 One could propose using a more advanced method, and there are many. Multi-armed
 bandits have been heavily studied and to this day, several algorithms exist to
@@ -46,7 +50,8 @@ but could we not instead use reinforcement learning to do this for us instead?\\
 Recently, Wang et al. \cite{learningtorl} and Duan et al. \cite{fastrlviaslowrl}
 proposed the idea of using reinforcement learning to learn an algorithm which
 deploys an optimal strategy for a class of problems sharing a similar structure.
-We will use the name "meta-RL" for this technique, as proposed by Wang et al.\\
+We will use the name "meta-RL" or meta-learning for this technique, as proposed 
+by Wang et al.\\
 
 \begin{figure}
 	\centering
@@ -60,13 +65,15 @@ the goal of the agent is to maximise its
 expected reward for each episode; for this, we let the agent play several
 episodes, choosing actions according to a policy which is learned over time, 
 but of which the learning process is manually defined by a strategy (Gittins,
-UCB, ...) hoping that the agent will yield high rewards as fast as possible.\\
+UCB, ...) hoping that the agent will yield high rewards as fast as possible.
+The part of this process we are interested in is the hand-designed updating of
+the policy inbetween episodes.\\
 
 As stated at the beginning of this chapter, designing strategies to learn
 policies is a hard task and can demand a sensitive tuning of parameters.
 Instead of manually designing ways to make the agent succeed faster, in meta-RL,
 the agent plays a trial of several episodes of the same problem and has to
-maximise its expected reward across trials (see 
+maximise its expected reward across all episodes of a trial (see 
 Figure~\ref{fig:meta_bandit_training}). This will incentivize the agent
 to understand the structure of a problem and develop a strategy that allows it 
 to estimate the parameters of the problem as fast as possible.\\
@@ -122,17 +129,19 @@ more than one timestep, between timesteps as well), but \textbf{not} between
 trials (see Figure~\ref{fig:meta_bandit_training}).
 The reason why the inter-episode connection is needed is because
 the agent might want to deploy a different policy given the results of 
-previous episodes.
+previous episodes as it has to optimise its expected reward across multiple
+episodes.
 
 \todo{Talk about bandit results?}
 
 \section{Meta-learning CartPole}
+\label{section:setting}
 We will study the performance of meta-learning on various distributions of 
 the CartPole problem. The CartPole environment describes a cart, rolling on 
 a frictionless rail. A pole is attached to the cart and has to be kept balanced
 above the cart for more than 195 timesteps by also keeping the cart within a 
-section of the rail. The adgent has two actions at its disposal: nudge the cart
-left or right. The observation of the state is a 4-valued vector 
+defined section of the rail. The agent has two actions at its disposal: nudge
+the cart left or right. The observation of the state is a 4-valued vector 
 containing the position of the cart, its velocity, the angle of the pole and
 the velocity of the pole at its tip. At each time step, the environment emits
 a reward of +1; so if the agent keeps the pole and the cart in their 
@@ -140,13 +149,25 @@ respective acceptable ranges for 20 timesteps, it will receive a total reward
 of 20.\\
 \todo{figure}
 
-We will mostly study how permutations of the observation vector and inverting
-the agent's actions can be learned
-using meta-RL. This means that the agent will receive a vector of 4 values
-without knowing which is which, but it will also have to figure out which
-one of its actions corresponds to pushing the cart to the left, and which
-one corresponds to pushing the cart to the right. These tweaks to the 
-CartPole problem generate a set of $4! \times 2 = 48$ different games.\\
+\subsection{Generating a distribution of CartPole problems}
+To generate a distribution of similar, yet different CartPole problems, we
+will play with two different parameters.
+
+\paragraph{Permutations} In standard reinforcement learning, the state
+observation vector is always ordered, meaning that each component of the vector
+always represents the same value (in CartPole for example, the first component
+represents the position of the cart). We can generate a set of $4! = 24$
+CartPole problems where for each problem, the state observation vector is
+permutated with problem-unique permutation. This means that the agent will
+receive a vector of 4 values without knowing which is which.
+
+\paragraph{Actions inversion} We will also introduce the inversion of the
+agent's actions. Just like the input vector, the policy output is ordered
+(the first component of the policy corresponds to the first action which is
+always the same). We will study how inverting actions affects training : instead
+of always associating the first component of the policy vector with going left,
+we will duplicate each of the 24 problems stated above by inverting the left
+and the right action. This adds up to a distribution of 48 CartPole problems.
 
 \begin{figure}
 	\centering
@@ -155,6 +176,39 @@ CartPole problem generate a set of $4! \times 2 = 48$ different games.\\
 	$E_0$ is the problem selected from the distribution for the duration
 	of a trial, $s_t$, $r_t$, $a_t$, $d_t$ and $h_t$  are respectively the state,
 	the reward, the action chosen, the termination flag
-	and the hidden state at timestep $t$.}
+	and the hidden state at timestep $t$.} 
 	\label{fig:meta_cartpole}
 \end{figure}
+
+\todo{separate in figure label}
+
+\subsection{Agent architecture}
+Our agent is an A2C agent built as described in Figure~\ref{fig:}\todo{fig}.
+The input vector is a concatenation of the state observation, the previous
+action taken, the reward obtained at the previous timestep and the termination
+flag :
+$$ i = [s_t, a_{t-1}, r_{t-1}, d_{t-1}] $$
+The action taken is converted to a one-hot encoding (converting the action
+index into a vector of length $|A|$ containing zeros except a single 1 at the
+index of the action). This vector is then fed to a LSTM sized at 48 hidden
+units, followed by two branches :
+\begin{enumerate}
+	\item a fully connected softmax layer with $|A|$ units (the policy
+		output)
+	\item a fully connected linear layer with 1 unit (the value output).
+\end{enumerate}
+The loss of the A2C agent is the following : 
+$$ \mathcal{L} = \beta_v \mathcal{L}_v + \beta_p \mathcal{L}_p - \beta_e 
+ \mathcal{L}_e $$
+where $\mathcal{L}_v$ is the value loss : 
+$$ \mathcal{L}_v = (R_{t-1} - V(s_t))^2$$
+$\mathcal{L}_p$ is the policy loss : 
+$$ \mathcal{L}_p = \pi(a_t \mid s_t) (R_t - V(s_t))$$
+$\mathcal{L}_e$ is the entropy regularisation : 
+$$ \mathcal{L}_e = \sum\limits_{a \in A}\pi(a \mid s_t)\log(\pi(a \mid s_t))$$
+and $\beta_v = 0.5$, $\beta_p = 1$, $\beta_e = 0.05$.\\
+
+Unless stated, the discount factor used in all experiments is $\gamma=0.9$. 
+
+
+

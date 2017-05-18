@@ -8,8 +8,7 @@ We will first and foremost analyse how a reinforcement learning agent
 performs when it is confronted to playing a single episode of one of the 
 CartPole problems. We will train the agent on a distribution of 20 permutations
 (shown on Table~\ref{tab:20perms}), at first without inverting the agent's
-action.
-\todo{settings (hyperparameters, gamma,...)}
+action.\\
 
 \begin{table}
 	\centering
@@ -73,7 +72,7 @@ of Figure~\ref{fig:20perms2ep_training}, we can only deduce two things :
 The second of these considerations will be addressed in
 chapter~\ref{chap:reward_structure}. Let us analyse the first one in more detail
 as the average reward graph doesn't give us enough insight in the final
-reward distributions.
+reward distributions.\\
 
 \begin{figure}
 	\centering
@@ -98,10 +97,13 @@ in dual-episode trials as we want to see whether or not the agent managed to
 gain knowledge during that first episode (potentially hurting its first episode
 reward) to improve its performance for the second episode.\\
 
+To compare the two settings, we fix the agent's learnable parameters and make
+it play 180 trials (resetting its hidden state before every trial). Every 
+CartPole problem in the distribution is played the same amount of times. \\
+
 Figure~\ref{fig:20perms_distrib} shows both a histogram and a boxplot describing
-the final reward distributions in the single and dual episode situations. The
-agent played every permutation of the training set for 10 trials, playing 180
-trials in total. Although the difference is slight, and seeing that the number
+the final reward distributions in the single and dual episode situations. 
+Although the difference is slight, and seeing that the number
 of successes (a final reward of 195 or more, corresponding to the uppermost
 bar) is almost exactly the same, there is definitely a difference in when the
 failures occur. For the single episode setting, all failures are distributed
@@ -169,6 +171,16 @@ comes close to 170 out of 180.\\
 	\label{fig:20permsLR_unseen_distrib}
 \end{figure}
 
+There are several surprises in these results. The first one is that a single
+episode appears to be enough for an agent to discover how the observation has
+been permutated in time to take action so that the pole stays balanced (at least
+for a majority of trials), but playing a second episode improves the performance
+of the agent.\\
+
+The second one seems to be that in the setting of dual-episode trials, the
+harder the problem is, the higher the number of successes will be. Indeed,
+the performance of agents playing problems with inverted actions is 
+significantly higher than the performance of agents playing problems without.
 
 
 
