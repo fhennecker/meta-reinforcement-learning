@@ -51,12 +51,16 @@ Recently, Wang et al. \cite{learningtorl} and Duan et al. \cite{fastrlviaslowrl}
 proposed the idea of using reinforcement learning to learn an algorithm which
 deploys an optimal strategy for a class of problems sharing a similar structure.
 We will use the name "meta-RL" or meta-learning for this technique, as proposed 
-by Wang et al.\\
+by Wang et al. Generally, we will call the learned algorithm the inner
+algorithm, and the algorithm that learns to learn the outer algorithm.\\
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/normal_bandit_training.eps}
-	\caption{A classic training sequence to learn a bandit problem}
+	\caption{A classic training sequence to learn a bandit problem. One
+	manually designs a strategy which inspects the reward obtained at 
+	the end of an episode and evaluates the performance of the action
+	taken accordingly. The strategy then updates the policy.}
 	\label{fig:normal_bandit_training}
 \end{figure}
 
@@ -81,7 +85,15 @@ to estimate the parameters of the problem as fast as possible.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{fig/meta_bandit_training.eps}
-	\caption{The training sequence for a meta-RL agent on a bandit problem}
+	\caption{The training sequence for a meta-RL agent on a bandit problem.
+	In this case, the agent is left to play several episodes on its own
+	without changing its weights. It is only when a trial ends that the
+	outer algorithm evaluates the rewards of all episodes in the trial and
+	updates the weights of the inner algorithm so that it increases its
+	chances of having a better reward across all episodes. For trials of 
+	two episodes such as the one presented in this figure, the outer
+	algorithm forces the inner algorithm to learn the problem in 
+	two episodes.}
 	\label{fig:meta_bandit_training}
 \end{figure}
 
@@ -174,13 +186,12 @@ and the right action. This adds up to a distribution of 48 CartPole problems.
 	\includegraphics[width=\linewidth]{fig/meta_cartpole.eps}
 	\caption{Meta-learning for multi-timestep episodes. A is the agent,
 	$E_0$ is the problem selected from the distribution for the duration
-	of a trial, $s_t$, $r_t$, $a_t$, $d_t$ and $h_t$  are respectively the state,
-	the reward, the action chosen, the termination flag
-	and the hidden state at timestep $t$.} 
+	of a trial, $s_t$, is the state of the environment, $r_t$, the reward,
+	$a_t$ is the chosen action, $d_t$ the terminal state and $h_t$ is
+	the hidden state at timestep $t$. Note that the same environment is
+	used throughout all episodes of the same trial.} 
 	\label{fig:meta_cartpole}
 \end{figure}
-
-\todo{separate in figure label}
 
 \subsection{Agent architecture}
 Our agent is an A2C agent built as described in Figure~\ref{fig:}\todo{fig}.

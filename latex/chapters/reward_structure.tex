@@ -32,7 +32,8 @@ succeed or almost succeed.
 	\\
 	\subfloat[][Training over 5 episodes]{
 		\includegraphics[width=0.9\linewidth]{fig/20permsLR5ep_training.pdf}}
-	\caption{}
+	\caption{Episode-wise reward evolution when training on trials of 
+	different lenghts}
 	\label{fig:20permsLR_training}
 \end{figure}
 
@@ -44,14 +45,19 @@ succeed or almost succeed.
 		\includegraphics[width=0.33\linewidth]{fig/20permsLR5ep_rewards.pdf}}
 	\subfloat[][10 episodes]{
 		\includegraphics[width=0.33\linewidth]{fig/20permsLR10ep_rewards.pdf}}
-	\caption{}
+	\caption{Testing performance of agents trained on trials of different
+	lenghts. Several runs are displayed in blue on the same plot, and their
+	average is shown as a red dashed line.}
 	\label{fig:20permsLR_rewards}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/gamma_impact.pdf}
-	\caption{}
+	\caption{Value of the discounted expected reward $R_t$ as a function
+	of the number of timesteps left before the end of an episode in which
+	a reward of +1 is given at every timestep; shown for different values
+	of $\gamma$.}
 	\label{fig:gamma_impact}
 \end{figure}
 
@@ -127,7 +133,8 @@ high scores.\\
 	\subfloat[][$\gamma=0.97$]{
 		\includegraphics[width=0.49\linewidth]{fig/res_perms5ep_97.pdf}}
 	\\
-	\caption{}
+	\caption{Variation of the episode-wise reward evolution in trials of 5
+	episodes when tuning the discount factor $\gamma$.}
 	\label{fig:varied_gamma}
 \end{figure}
 
