@@ -11,7 +11,8 @@ reinforcement learning problem is hard. Some of the challenges one meets are:
 \begin{itemize}
 	\item the tradeoff between exploration and exploitation
 	\item designing a strategy that allows for versatile training
-	\item choosing hyperparameters \todo{define} that make the strategy
+	\item choosing hyperparameters (learning rate, architecture of a
+		neural network,...) \index{hyperparameter} that make the strategy
 		optimal considering the reinforcement learning problem at hand
 \end{itemize}
 
@@ -24,15 +25,21 @@ where $P(r \mid \text{arm}_1)$ is the probability of arm 1 to generate a reward
 and $0 \leq p_b \leq 1$ is the parameter of the bandit problem. One way to
 solve this problem would be to use the $\epsilon$-greedy strategy. This
 strategy keeps an average of the reward of each earm and chooses the next
-action the following way : choose the action with the best average
-reward so far with probability $(1-\epsilon)$, otherwise choose a random action.
+action the following way:
+$$ \text{choose} \begin{cases}
+	\text{action with the best average reward so far} & \text{with probability } (1-\epsilon) 
+	\\
+	\text{random action} & \text{otherwise}
+\end{cases}
+$$
+
 This raises the question about choosing $\epsilon$. Choosing a low $\epsilon$
 encourages exploitation but we have a higher chance of wrongly estimating $p_b$.
 Choosing a high $\epsilon$ doesn't allow the agent to perform optimally once
 its knowledge about the parameters of the problem is likely to be optimal.
 Moreover, we could choose a variable $\epsilon$, high at first but slowly
 converging to 0, but we then are faced with the choice of another
-hyperparameter : the number of steps over which $\epsilon$ should be annealed.\\
+hyperparameter: the number of steps over which $\epsilon$ should be annealed.\\
 
 One could propose using a more advanced method, and there are many. Multi-armed
 bandits have been heavily studied and to this day, several algorithms exist to
@@ -59,8 +66,8 @@ algorithm, and the algorithm that learns to learn the outer algorithm.\\
 	\includegraphics[width=0.7\linewidth]{fig/normal_bandit_training.eps}
 	\caption{A classic training sequence to learn a bandit problem. One
 	manually designs a strategy which inspects the reward obtained at 
-	the end of an episode and evaluates the performance of the action
-	taken accordingly. The strategy then updates the policy.}
+	the end of an episode and evaluates accordingly the performance of the action
+	taken. The strategy then updates the policy.}
 	\label{fig:normal_bandit_training}
 \end{figure}
 
@@ -75,10 +82,14 @@ the policy inbetween episodes.\\
 
 As stated at the beginning of this chapter, designing strategies to learn
 policies is a hard task and can demand a sensitive tuning of parameters.
-Instead of manually designing ways to make the agent succeed faster, in meta-RL,
+In meta-RL, instead of manually designing ways to make the agent succeed faster,
 the agent plays a trial of several episodes of the same problem and has to
 maximise its expected reward across all episodes of a trial (see 
-Figure~\ref{fig:meta_bandit_training}). This will incentivize the agent
+Figure~\ref{fig:meta_bandit_training}). Note that a trial replicates the setting
+of learning to solve a problem -- the agent is not learning to solve a 
+problem anymore, it is learning to learn how to solve a problem, but in 
+a very low number of episodes rather than the many episodes needed 
+to train a standard reinforcement learning agent. This will incentivize the agent
 to understand the structure of a problem and develop a strategy that allows it 
 to estimate the parameters of the problem as fast as possible.\\
 
@@ -101,7 +112,8 @@ In our manually designed strategies, we use previous actions and rewards
 to update the policy and make it better. Similarly, in order to
 make meta-RL work, the agent has to receive as input the previous reward
 and the action that led to that reward, but it also needs to carry on some
-sort of memory of past actions and rewards.\\
+sort of memory of past actions and rewards. We do this manually in 
+$\epsilon$-greedy by keeping track of the average reward yielded by each arm.\\
 
 
 \begin{figure}
