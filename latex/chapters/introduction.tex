@@ -63,12 +63,20 @@ This process works by letting the agent interact with the environment for many
 sessions, until it figures out what actions, and what sequences of actions lead
 to high rewards. This is the training process of a reinforcement learning agent.
 One example of this is the CartPole problem \cite{barto-cartpole} where the
-agent controls a cart on which a pole is balanced. The goal is to keep the
+agent controls a cart on which a pole is balanced (see
+Figure~\ref{fig:cartpole_illustration}). The goal is to keep the
 pole balanced for as long as possible by nudging the cart left or right. The
 agent receives the position of the cart, the velocity of the cart, the pole
 angle and the pole velocity at tip as a state observation from the environment,
 and has to push the cart either left or right. The agent will first perform
 randomly, but sooner or later, it will figure out how to balance the pole.\\
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/cartpole.eps}
+	\caption{An illustration of the CartPole problem}
+	\label{fig:cartpole_illustration}
+\end{figure}
 
 One common issue between all of the techniques described above is that once
 training is over, the behaviour of the trained agent or model will not change

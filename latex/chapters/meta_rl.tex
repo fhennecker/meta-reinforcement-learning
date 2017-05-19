@@ -194,7 +194,7 @@ and the right action. This adds up to a distribution of 48 CartPole problems.
 \end{figure}
 
 \subsection{Agent architecture}
-Our agent is an A2C agent built as described in Figure~\ref{fig:}\todo{fig}.
+Our agent is an A2C agent built as described in Figure~\ref{fig:a2c_meta}.
 The input vector is a concatenation of the state observation, the previous
 action taken, the reward obtained at the previous timestep and the termination
 flag :
@@ -205,7 +205,9 @@ index of the action). This vector is then fed to a LSTM sized at 48 hidden
 units, followed by two branches :
 \begin{enumerate}
 	\item a fully connected softmax layer with $|A|$ units (the policy
-		output)
+		output). Actions are selected by sampling according to the
+		distribution defined by the policy, rather than by taking the
+		action with the highest probability.
 	\item a fully connected linear layer with 1 unit (the value output).
 \end{enumerate}
 The loss of the A2C agent is the following : 
@@ -217,7 +219,8 @@ $\mathcal{L}_p$ is the policy loss :
 $$ \mathcal{L}_p = \pi(a_t \mid s_t) (R_t - V(s_t))$$
 $\mathcal{L}_e$ is the entropy regularisation : 
 $$ \mathcal{L}_e = \sum\limits_{a \in A}\pi(a \mid s_t)\log(\pi(a \mid s_t))$$
-and $\beta_v = 0.5$, $\beta_p = 1$, $\beta_e = 0.05$.\\
+and $\beta_v = 0.5$, $\beta_p = 1$, $\beta_e = 0.05$. An update is performed
+once after every trial using Adam \cite{adam} with a learning rate of 0.001.\\
 
 Unless stated, the discount factor used in all experiments is $\gamma=0.9$. 
 
