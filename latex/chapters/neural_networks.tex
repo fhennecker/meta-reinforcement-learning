@@ -213,6 +213,40 @@ previous input values that affected its computing.\\
 \end{figure}
 
 \subsection{Long Short-Term Memory (LSTM)}
+One major issue encountered when using recurrent neural networks is that they
+are famous for being unstable. Very often, at some point, training will diverge
+and will never reach a satisfying optimum. Several solutions have been presented
+to counter this unstability, one of them being Long Short-Term Memory (LSTM)
+cells \cite{lstm}. \\
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/lstm.eps}
+	\caption{The internals of a LSTM cell. Circles represent element-wise
+	operations (arrows carry vectors). \framebox{sig} and 
+	\framebox{tanh} are layers. $c_t$ is the memory cell.}
+	\label{fig:lstm}
+\end{figure}
+
+Instead of carrying to the next timestep only the hidden state (which is also
+the output of the cell), LSTMs also carry what is called the
+\textit{memory cell} $c_t$ which isn't used as output. This memory cell is 
+able to handle longer term memory management by using \textit{gates} to 
+access and modify it. All gates receive a concatenation of the previous hidden
+state $h_{t-1}$ and the new input vector $x_t$. They feed this input through a
+sigmoid layer to an element-wise multiplication. There are three in total, as
+they can be seen from left to right on Figure~\ref{fig:lstm}:
+\begin{enumerate}
+	\item the \textit{forget gate} is the first one. It will multiply each
+		value in the memory cell by a value in $[0, 1]$, keeping only
+		the values it considers useful.
+	\item the \textit{update gate} is the second one and it chooses which
+		ones of the outputs of the first \framebox{tanh} layer will
+		make their way to the memory cell.
+	\item the \textit{output gate} is the last one and decides what parts
+		of the memory cell make it to the output.
+\end{enumerate}
+
 \todo{universal function approximators}
 
 
