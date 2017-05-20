@@ -156,11 +156,105 @@ the agent might want to deploy a different policy given the results of
 previous episodes as it has to optimise its expected reward across multiple
 episodes.
 
-\todo{Talk about bandit results?}
+\section{Agent architecture}
+Our agent is an A2C agent built as described in Figure~\ref{fig:a2c_meta}.
+The input vector is a concatenation of the state observation, the previous
+action taken, the reward obtained at the previous timestep and the termination
+flag :
+$$ i = [s_t, a_{t-1}, r_{t-1}, d_{t-1}] $$
+The action taken is converted to a one-hot encoding (converting the action
+index into a vector of length $|A|$ containing zeros except a single 1 at the
+index of the action). This vector is then fed to a LSTM sized at 48 hidden
+units, followed by two branches :
+\begin{enumerate}
+	\item a fully connected softmax layer with $|A|$ units (the policy
+		output). Actions are selected by sampling according to the
+		distribution defined by the policy, rather than by taking the
+		action with the highest probability.
+	\item a fully connected linear layer with 1 unit (the value output).
+\end{enumerate}
+The loss of the A2C agent is the following : 
+$$ \mathcal{L} = \beta_v \mathcal{L}_v + \beta_p \mathcal{L}_p - \beta_e 
+ \mathcal{L}_e $$
+where $\mathcal{L}_v$ is the value loss : 
+$$ \mathcal{L}_v = (R_{t-1} - V(s_t))^2$$
+$\mathcal{L}_p$ is the policy loss : 
+$$ \mathcal{L}_p = \pi(a_t \mid s_t) (R_t - V(s_t))$$
+$\mathcal{L}_e$ is the entropy regularisation : 
+$$ \mathcal{L}_e = \sum\limits_{a \in A}\pi(a \mid s_t)\log(\pi(a \mid s_t))$$
+and $\beta_v = 0.5$, $\beta_p = 1$, $\beta_e = 0.05$. An update is performed
+once after every trial using Adam \cite{adam} with a learning rate of 0.001.\\
+
+Unless stated, the discount factor used in all experiments is $\gamma=0.9$. 
+
+
+\section{Meta-learning dependent bandits}
+Let us come back to the problem stated previously as an example : a dependent
+bandit with 2 arms of which the reward distribution is a Bernoulli distribution
+with the following parameters : 
+$$ \begin{cases} P(r \mid \text{arm}_1) = p_b \\ 
+P(r \mid \text{arm}_2) = 1 - p_b  \end{cases} $$
+
+We define a training distribution of dependent problems with
+$p_b \in [0.1, 0.2, 0.8, 0.9]$, creating the following set of dependent
+bandit problems:
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c|c}
+		Arm \#1 & Arm \#2 \\ \hline
+		0.1 & 0.9 \\ \hline
+		0.2 & 0.8 \\ \hline
+		0.8 & 0.2 \\ \hline
+		0.9 & 0.1
+	\end{tabular}
+\end{table}
+
+The agent will play trials of 100 episodes - meaning that we choose one bandit
+problem and let the agent pull either one of its arms 100 times, then reset
+the hidden state and start again. Since the problem is stateless, the agent
+only receives the last action taken, the previous reward and the termination
+flag as input. The discount factor $\gamma$ is set to 0.8 to replicate 
+Wang et al.'s experiment \cite{learningtorl}.\\
+
+Figure~\ref{fig:bandit_reward} shows that after some time, the agent figures out
+a way to yield an excellent reward over all trials: for trials using bandits
+with $p_b \in [0.1, 0.9]$, even if the agent pulled the best arm for
+each episode (which rules out exploration completely), the total reward
+expectation is 80, and for trials using bandits with $p_b \in [0.1, 0.9]$, 
+the total reward expectation is 90. Scoring an average trial reward between
+80 and 85 looks very close to optimal, if not fully optimal.\\
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/bandit_reward.pdf}
+	\caption{Evolution of the smoothed reward of trials during training on
+	dependent bandit problems}
+	\label{fig:bandit_reward}
+\end{figure}
+
+If we look at the evolution of decisions taken by the agent during training
+on Figure~\ref{fig:bandit_optimality}, and especially on
+Figure~\ref{fig:bandit_optimality}b, we see that the agent evolves from playing
+randomly each arm to testing both arms for just a few episodes at the start
+of the trial to then always play what it judges is the best episode.
+
+\begin{figure}
+	\centering
+	\subfloat[][Pulled arm]{
+		\includegraphics[width=0.49\linewidth]{fig/bandit_pulls.png}}
+	\subfloat[][Optimality of the pulled arm]{
+		\includegraphics[width=0.49\linewidth]{fig/bandit_optimality.png}}
+	\caption{Insight into the evolution of which arms get pulled and 
+	whether they are optimal during training. On the left, a black dot
+	represents the fact that arm \#1 has been pulled and a white dot
+	represents the fact that arm \#2 has been pulled. On the right, a white
+	dot signifies that the best arm has been pulled.}
+	\label{fig:bandit_optimality}
+\end{figure}
 
 \section{Meta-learning CartPole}
-\label{section:setting}
-We will study the performance of meta-learning on various distributions of 
+\label{sec:setting}
+We will stude performance of meta-learning on various distributions of 
 the CartPole problem. The CartPole environment describes a cart, rolling on 
 a frictionless rail. A pole is attached to the cart and has to be kept balanced
 above the cart for more than 195 timesteps by also keeping the cart within a 
@@ -204,37 +298,5 @@ and the right action. This adds up to a distribution of 48 CartPole problems.
 	used throughout all episodes of the same trial.} 
 	\label{fig:meta_cartpole}
 \end{figure}
-
-\subsection{Agent architecture}
-Our agent is an A2C agent built as described in Figure~\ref{fig:a2c_meta}.
-The input vector is a concatenation of the state observation, the previous
-action taken, the reward obtained at the previous timestep and the termination
-flag :
-$$ i = [s_t, a_{t-1}, r_{t-1}, d_{t-1}] $$
-The action taken is converted to a one-hot encoding (converting the action
-index into a vector of length $|A|$ containing zeros except a single 1 at the
-index of the action). This vector is then fed to a LSTM sized at 48 hidden
-units, followed by two branches :
-\begin{enumerate}
-	\item a fully connected softmax layer with $|A|$ units (the policy
-		output). Actions are selected by sampling according to the
-		distribution defined by the policy, rather than by taking the
-		action with the highest probability.
-	\item a fully connected linear layer with 1 unit (the value output).
-\end{enumerate}
-The loss of the A2C agent is the following : 
-$$ \mathcal{L} = \beta_v \mathcal{L}_v + \beta_p \mathcal{L}_p - \beta_e 
- \mathcal{L}_e $$
-where $\mathcal{L}_v$ is the value loss : 
-$$ \mathcal{L}_v = (R_{t-1} - V(s_t))^2$$
-$\mathcal{L}_p$ is the policy loss : 
-$$ \mathcal{L}_p = \pi(a_t \mid s_t) (R_t - V(s_t))$$
-$\mathcal{L}_e$ is the entropy regularisation : 
-$$ \mathcal{L}_e = \sum\limits_{a \in A}\pi(a \mid s_t)\log(\pi(a \mid s_t))$$
-and $\beta_v = 0.5$, $\beta_p = 1$, $\beta_e = 0.05$. An update is performed
-once after every trial using Adam \cite{adam} with a learning rate of 0.001.\\
-
-Unless stated, the discount factor used in all experiments is $\gamma=0.9$. 
-
 
 
