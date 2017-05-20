@@ -10,7 +10,7 @@
 Throughout this paper, we will use the very powerful tool that a neural network
 is for several different purposes. One could describe a neural network in 
 three words: general function approximators. We can describe their input
-and the output desired from that input -- inbetween, a very large amount of
+and the output desired from that input -- inbetween stands a very large amount of
 nonlinear computations of which coefficients and parameters can be tuned to
 make the network's output closer to what we want in a process called training, 
 or learning. The name "neural network"
@@ -23,13 +23,16 @@ than the billions and billions of interconnected neurons humans have developed.
 A neural network is a collection of interconnected \textit{neurons}. The
 simplest and most widely used networks are feedforward neural networks. In this
 setting, neurons are arranged into ordered layers of which the first one is
-called the input layer, and the last one is called the output layer.\\
+called the input layer, and the last one is called the output layer
+(see Figure~\ref{fig:neural_network}).\\
 
-The input vector is composed of \textbf{features}; measures, properties. Say
+The input vector, also called the feature vector \index{feature vector},
+is composed of \textbf{features}; measures, properties. Say
 for example that we wanted to build a neural network that classifies cats and
 dogs; we could measure attributes such as the height of the animal, the length
 of its hair, its general loyalty to its owners and the number of hours it 
-spends sleeping per day.\\
+spends sleeping per day and try to build a neural network that classifies
+them based on these features.\\
 
 For the output layer, we would have a two-neuron layer: one which corresponds
 to "cat" and the other one to "dog". Once we have trained the network
@@ -48,10 +51,10 @@ kind of animal the neural network thinks the measurements best fit to.\\
 
 In a feedforward neural network, each neuron is connected to every neuron in 
 the next layer.  To obtain an output from a given input,
-the information will be passed from layer to layer in the following way : 
+the information will be passed from layer to layer in the following way: 
 each neuron computes a weighted sum of the outputs of all neurons in the
-previous layer then squashes this weighted sum in an activation function
-\index{activation function}. 
+previous layer then squashes this weighted sum in an activation function.
+\index{activation function} 
 Hence, the neuron $h_1$ in the network of Figure~\ref{fig:neural_network}
 outputs:
 $$ f(w_1i_1 + w_2i_2 + w_3i_3 + b) $$
@@ -95,7 +98,7 @@ of measurements and their associated ground truths \index{ground truth}
 number of examples is called the \textbf{training set} \index{training set}.
 Training is
 then performed by alternating feedforward passes (distilling the input through
-the network and obtaining the network output) and backpropagation, modifiying 
+the network and obtaining the network output) and backpropagation: modifiying 
 the weights of the connections between neurons (that will in turn modify 
 the network output) until the network output matches the ground truth with 
 a good enough accuracy.\\
@@ -104,7 +107,7 @@ The forward pass has been explained previously, but the backwards pass, also
 called \textbf{backpropagation}, is slightly more complicated.\\
 
 \subsubsection{Loss function}
-The first thing we need to make our network better is a number which tells us
+The first thing we need to make our network better is a number which measures
 how far the network output is from the ground truth.
 This is exactly what a \textbf{loss function} \index{loss function} does: 
 it describes numerically the error between the target and the network output.
@@ -131,17 +134,18 @@ full is out of the scope of this paper.
 The problem at hand is indeed an optimisation problem with the following
 parameters:
 \begin{itemize}
-	\item the objective function is the loss function
+	\item the objective function, which we want to minimise, is the loss 
+		function
 	\item the parameters are all the weights of the neural network
 \end{itemize}
 How can we link the parameters to the objective function? A key requirement
 for activation functions and the loss function is that they have to be
 \textbf{differentiable}. When this is the case, we can compute the gradient
-of the loss function and backpropagate it through the network by using the
-chain rule of derivation. The first question to ask is: how do the weights
-of the last layer affect the loss function? We can get a glimpse of this
-by looking at the partial derivatives of the loss function regarding those
-weights:
+of the loss function (in other words, the gradient of the error) and 
+backpropagate it through the network by using the
+chain rule of derivation. The derivative of the loss function can be written
+in terms of its partial derivatives with respect to each of the weights
+in the network:
 $$\nabla\mathcal{L} = \left(
   \frac{\delta\mathcal{L}}{\delta w_1}, 
   \frac{\delta\mathcal{L}}{\delta w_2}, 
@@ -149,6 +153,7 @@ $$\nabla\mathcal{L} = \left(
   \frac{\delta\mathcal{L}}{\delta w_k}\right) 
 $$
 for each weight in the network. Each weight will then be modified by adding
+a small increment in the direction of the gradient:
 $$ \Delta w_i = - \alpha \frac{\delta\mathcal{L}}{\delta w_i}$$
 where $\alpha$ is the learning rate.\\
 

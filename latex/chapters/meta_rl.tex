@@ -84,8 +84,8 @@ the policy inbetween episodes.\\
 As stated at the beginning of this chapter, designing strategies to learn
 policies is a hard task and can demand a sensitive tuning of parameters.
 In meta-RL, instead of manually designing ways to make the agent succeed faster,
-the agent plays a trial of several episodes of the same problem and has to
-maximise its expected reward across all episodes of a trial (see 
+the agent plays a \textbf{trial} \index{trial} of several episodes of the same problem
+and has to maximise its expected reward across all episodes of a trial (see 
 Figure~\ref{fig:meta_bandit_training}). Note that a trial replicates the setting
 of learning to solve a problem -- the agent is not learning to solve a 
 problem anymore, it is learning to learn how to solve a problem, but in 
@@ -103,9 +103,9 @@ to estimate the parameters of the problem as fast as possible.\\
 	outer algorithm evaluates the rewards of all episodes in the trial and
 	updates the weights of the inner algorithm so that it increases its
 	chances of having a better reward across all episodes. For trials of 
-	two episodes such as the one presented in this figure, the outer
+	three episodes such as the one presented in this figure, the outer
 	algorithm forces the inner algorithm to learn the problem in 
-	two episodes.}
+	three episodes.}
 	\label{fig:meta_bandit_training}
 \end{figure}
 
@@ -114,7 +114,9 @@ to update the policy and make it better. Similarly, in order to
 make meta-RL work, the agent has to receive as input the previous reward
 and the action that led to that reward, but it also needs to carry on some
 sort of memory of past actions and rewards. We do this manually in 
-$\epsilon$-greedy by keeping track of the average reward yielded by each arm.\\
+$\epsilon$-greedy by keeping track of the average reward yielded by each arm.
+In the case of meta-RL, this is done by using a recurrent network which
+carries a hidden state from the first episode in the trial to the last.\\
 
 
 \begin{figure}
@@ -164,11 +166,11 @@ action taken, the reward obtained at the previous timestep and the termination
 flag :
 $$ i = [s_t, a_{t-1}, r_{t-1}, d_{t-1}] $$
 The action taken is converted to a one-hot encoding (converting the action
-index into a vector of length $|A|$ containing zeros except a single 1 at the
-index of the action). This vector is then fed to a LSTM sized at 48 hidden
-units, followed by two branches :
+index into a vector of length $|\mathcal{A}|$ containing zeros except a single
+1 at the index of the action). This vector is then fed to a LSTM sized at 48
+hidden units, followed by two branches :
 \begin{enumerate}
-	\item a fully connected softmax layer with $|A|$ units (the policy
+	\item a fully connected softmax layer with $|\mathcal{A}|$ units (the policy
 		output). Actions are selected by sampling according to the
 		distribution defined by the policy, rather than by taking the
 		action with the highest probability.
@@ -239,7 +241,7 @@ Figure~\ref{fig:bandit_optimality}b, we see that the agent evolves from playing
 randomly each arm to testing both arms for just a few episodes at the start
 of the trial to then always play what it judges is the best episode.\\
 
-We should emphasize on the scope of these results. If we had used the 
+We should emphasize on the importance of these results. If we had used the 
 $\epsilon$-greedy method as is, the difference in performance would be 
 significantly different on several aspects:
 \begin{itemize}
@@ -259,7 +261,7 @@ Using meta-learning allowed us to bypass all these design considerations.
 Furthermore, both Wang et al. \cite{learningtorl} and Duan et al. 
 \cite{fastrlviaslowrl} show that the strategy deployed by the meta-learning
 agent matches (or outperforms) the best hand-designed strategies such as 
-UCB and Gittins.
+UCB and Gittins.\\
 
 \begin{figure}
 	\centering
@@ -304,7 +306,8 @@ are closer to 0.5, even though it has only ever seen $p_b = 0.8$ and $p_b = 0.9$
 
 \section{Meta-learning CartPole setting}
 \label{sec:setting}
-We will study the performance of meta-learning on various distributions of 
+We will now extend the study the performance of meta-learning on multi-timestep
+episodes; and for that purpose, we will use various distributions of 
 the CartPole problem. The CartPole environment describes a cart, rolling on 
 a frictionless rail (see Figure~\ref{fig:cartpole_illustration}). 
 A pole is attached to the cart and has to be kept balanced
@@ -327,7 +330,7 @@ observation vector is always ordered, meaning that each component of the vector
 always represents the same value (in CartPole for example, the first component
 represents the position of the cart). We can generate a set of $4! = 24$
 CartPole problems where for each problem, the state observation vector is
-permutated with problem-unique permutation. This means that the agent will
+permutated with a unique permutation. This means that the agent will
 receive a vector of 4 values without knowing which is which.
 
 \paragraph{Actions inversion} We will also introduce the inversion of the
@@ -336,7 +339,7 @@ agent's actions. Just like the input vector, the policy output is ordered
 always the same). We will study how inverting actions affects training : instead
 of always associating the first component of the policy vector with going left,
 we will duplicate each of the 24 problems stated above by inverting the left
-and the right action. This adds up to a distribution of 48 CartPole problems.
+and the right action. This adds up to a distribution of 48 CartPole problems.\\
 
 \begin{figure}
 	\centering
@@ -349,6 +352,12 @@ and the right action. This adds up to a distribution of 48 CartPole problems.
 	used throughout all episodes of the same trial.}
 	\label{fig:meta_cartpole}
 \end{figure}
+
+Figure~\ref{fig:meta_cartpole} shows how the single-timestep framework
+presented in Figure~\ref{fig:meta_bandit_training} adapts to episodes
+with multiple timesteps.
+
+
 
 
 
