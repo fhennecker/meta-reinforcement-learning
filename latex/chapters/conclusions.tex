@@ -1,0 +1,64 @@
+\chapter{Conclusions}
+\begin{quotation}
+\noindent ``\emph{quote}''
+\begin{flushright}\textbf{author}\end{flushright}
+\end{quotation}
+
+After having reviewed the foundations of artificial neural networks and
+reinforcement learning, we went through the reasons why meta-learning is
+interesting and useful: not only it allows one to avoid choosing, designing
+or parametrising complex task-related strategies to accelerate training, but
+most importantly, it allows for agents to learn highly efficiently problems
+that have the same structure and to generalise over the parameters of the 
+structure -- bluntly put, one can reuse an agent without retraining it, as long
+as the problem is similar and the meta-learning agent has seen enough
+variation in the training distribution.\\
+
+We have reproduced one experiment originally setup by Wang et al. 
+\cite{learningtorl} and Duan et al. \cite{fastrlviaslowrl} which consisted
+in meta-learning dependent 2-armed bandit problems. While we achieved the
+same results as the two seminal papers cited above, we extended the results
+discussion to the dynamics of meta-learning such a problem, showing how
+the meta-learning agent develops its strategy to learn a bandit problem faster
+and faster.\\
+
+Meta-learning was extended to a new set of experiments based on the CartPole
+environment. We designed a distribution of CartPole problems by shuffling
+the state observation received by the agent (without informing the agent
+of the mapping between values and their meaning), and by permutating 
+the agent's actions randomly at the start of training trials.\\
+
+We have shown that even though, surprisingly, the agent was able to learn
+to discover which problem it was playing in one episode, meaning that:
+\begin{enumerate}
+	\item it was able to make sense of an unordered set of values in input;
+	\item it was able to learn the consequences of its actions;
+	\item it could perform 1) and 2) in time to be able to balance the
+		pole for a long enough time to succeed the episode.
+\end{enumerate}
+Although the performance of the agent was near optimal, we found that letting
+the agent play for at least two episodes increased its performance as it
+was able to learn about the environment and take consequential action in
+later episodes to improve its success rate. Quite surprisingly also,
+the meta-learning agent performed better in environments which were more
+difficult, and the difference between single-episode and multi-episode trials
+increased as the problems grew harder and both were tested on previously unseen
+problems.\\
+
+There are still parameters to choose manually when designing a meta-learning
+agent, and their tuning provides for some interesting dynamics in the 
+performance of a trained agent. We have studied how the discount factor
+and the number of episodes per trial
+played an important role in the evolution of episode-wise reward during the 
+training of a meta-learning agent.\\
+
+We have also tried to understand how a meta-learning agent handled playing
+more episodes than what it had been trained for.
+
+better reward structure?
+Why do high gamma values fail?
+
+Could a meta-learning agent learn different problems? 
+What if the states are not of the same dimension? And the action space?
+Could it then play another different game?
+
