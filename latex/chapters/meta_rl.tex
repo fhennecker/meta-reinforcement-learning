@@ -275,6 +275,33 @@ UCB and Gittins.
 	\label{fig:bandit_optimality}
 \end{figure}
 
+It is worth noting however that we have only been considering known and seen
+bandit problems in our discussion so far. Nevertheless, we see 
+on Figure~\ref{fig:bandit_test} that the meta-learning agent can generalise to
+all other values of the parameter $p_b$ with very good performance. For the 
+performance analyis of Figure~\ref{fig:bandit_test}, we let the agent play 
+100 trials of 20 equally spaced values of $p_b$ in the range $[0.5, 0.975]$.
+For each trial, the optimal arm was randomly shuffled to be either the first
+or second arm. We compare the average reward obtained to the optimal expected
+reward (the theoretical expected reward obtained by exclusively pulling the
+optimal arm, which is not practically possible since the agent doesn't know
+which arm is the optimal arm and has to explore for several episodes).\\
+
+The agent performs very well on unseen values of $p_b$, even harder ones which
+are closer to 0.5, even though it has only ever seen $p_b = 0.8$ and $p_b = 0.9$.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/bandit_test.pdf}
+	\caption{Average performance of the meta-learning agent on the whole
+	range of the parameter $p_b$. The agent has only seen
+	$p_b \in [0.8, 0.9]$. The performance is compared to the theoretical
+	expected reward if the agent selected the optimal arm for each episode.}
+	\label{fig:bandit_test}
+\end{figure}
+
+
+
 \section{Meta-learning CartPole setting}
 \label{sec:setting}
 We will study the performance of meta-learning on various distributions of 
