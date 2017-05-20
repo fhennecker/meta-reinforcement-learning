@@ -6,6 +6,7 @@
 
 \vspace*{0.5cm}
 
+\section{Goals and foundations}
 Developing and tuning algorithms to find the optimal strategy to solve a
 reinforcement learning problem is hard. Some of the challenges one meets are:
 \begin{itemize}
@@ -218,7 +219,7 @@ Wang et al.'s experiment \cite{learningtorl}.\\
 
 Figure~\ref{fig:bandit_reward} shows that after some time, the agent figures out
 a way to yield an excellent reward over all trials: for trials using bandits
-with $p_b \in [0.1, 0.9]$, even if the agent pulled the best arm for
+with $p_b \in [0.2, 0.8]$, even if the agent pulled the best arm for
 each episode (which rules out exploration completely), the total reward
 expectation is 80, and for trials using bandits with $p_b \in [0.1, 0.9]$, 
 the total reward expectation is 90. Scoring an average trial reward between
@@ -236,7 +237,29 @@ If we look at the evolution of decisions taken by the agent during training
 on Figure~\ref{fig:bandit_optimality}, and especially on
 Figure~\ref{fig:bandit_optimality}b, we see that the agent evolves from playing
 randomly each arm to testing both arms for just a few episodes at the start
-of the trial to then always play what it judges is the best episode.
+of the trial to then always play what it judges is the best episode.\\
+
+We should emphasize on the scope of these results. If we had used the 
+$\epsilon$-greedy method as is, the difference in performance would be 
+significantly different on several aspects:
+\begin{itemize}
+	\item with a fixed $\epsilon$, sticking to the optimal arm would have
+		been impossible (as a random action is required from time to 
+		time), hindering performance while it can be very clear
+		which arm is the best
+	\item even if we chose a small $\epsilon$ to minimise performance loss
+		in the exploitation phase, we would have increased dramatically
+		the probability of not exploring enough at the start of the 
+		episode
+	\item similar reasoning can be used to argue about the number of 
+		trials over which $\epsilon$ could have been annealed from
+		1 to 0.
+\end{itemize}
+Using meta-learning allowed us to bypass all these design considerations.
+Furthermore, both Wang et al. \cite{learningtorl} and Duan et al. 
+\cite{fastrlviaslowrl} show that the strategy deployed by the meta-learning
+agent matches (or outperforms) the best hand-designed strategies such as 
+UCB and Gittins.
 
 \begin{figure}
 	\centering
@@ -252,11 +275,12 @@ of the trial to then always play what it judges is the best episode.
 	\label{fig:bandit_optimality}
 \end{figure}
 
-\section{Meta-learning CartPole}
+\section{Meta-learning CartPole setting}
 \label{sec:setting}
-We will stude performance of meta-learning on various distributions of 
+We will study the performance of meta-learning on various distributions of 
 the CartPole problem. The CartPole environment describes a cart, rolling on 
-a frictionless rail. A pole is attached to the cart and has to be kept balanced
+a frictionless rail (see Figure~\ref{fig:cartpole_illustration}). 
+A pole is attached to the cart and has to be kept balanced
 above the cart for more than 195 timesteps by also keeping the cart within a 
 defined section of the rail. The agent has two actions at its disposal: nudge
 the cart left or right. The observation of the state is a 4-valued vector 
@@ -265,7 +289,7 @@ the velocity of the pole at its tip. At each time step, the environment emits
 a reward of +1; so if the agent keeps the pole and the cart in their 
 respective acceptable ranges for 20 timesteps, it will receive a total reward
 of 20.\\
-\todo{figure}
+
 
 \subsection{Generating a distribution of CartPole problems}
 To generate a distribution of similar, yet different CartPole problems, we
@@ -295,8 +319,9 @@ and the right action. This adds up to a distribution of 48 CartPole problems.
 	of a trial, $s_t$, is the state of the environment, $r_t$, the reward,
 	$a_t$ is the chosen action, $d_t$ the terminal state and $h_t$ is
 	the hidden state at timestep $t$. Note that the same environment is
-	used throughout all episodes of the same trial.} 
+	used throughout all episodes of the same trial.}
 	\label{fig:meta_cartpole}
 \end{figure}
+
 
 
