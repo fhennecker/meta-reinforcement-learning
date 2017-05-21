@@ -1,0 +1,32 @@
+\chapter{Reward shaping for meta-learning}
+\begin{quotation}
+\noindent ``\emph{quote}''
+\begin{flushright}\textbf{author}\end{flushright}
+\end{quotation}
+
+
+We have described in section \ref{section:problems_1_timestep_reward} why
+a 1-per-timestep reward structure led to an undesired behaviour of laziness,
+in which the agent only maximised its reward on the last episode of its
+training trials.\\
+
+We introduce a simple, yet effective way to allow problems with similar 
+reward structures to be meta-learned. In hand-designed strategies aimed to
+solve such problems, the designer holds the implicit knowledge that a short
+episode is a bad thing, and treats the reward streams of each episode 
+separately. In meta-learning, just like we feed back a termination flag, which
+is not an environment-level value but rather a "process-level" value (where
+the process is the training process we replicate in a trial); we can
+introduce a process-level reward to give information to the agent 
+performing the trial.\\
+
+We propose to add a small negative reward at the end of each episode, 
+interrupting the continuous reward stream to force the agent to perform
+well for each of the episodes in the trial.
+
+
+
+Issue : can't relate first episode to last with low gamma. Voluntary
+reward loss can't happen. We should maybe train the outer algorithm
+on final episode rewards only.
+
