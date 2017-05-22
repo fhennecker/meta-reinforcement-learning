@@ -50,15 +50,40 @@ agent, and their tuning provides for some interesting dynamics in the
 performance of a trained agent. We have studied how the discount factor
 and the number of episodes per trial
 played an important role in the evolution of episode-wise reward during the 
-training of a meta-learning agent.\\
-
+training of a meta-learning agent.
 We have also tried to understand how a meta-learning agent handled playing
-more episodes than what it had been trained for.
+more episodes than what it had been trained for.\\
 
-better reward structure?
-Why do high gamma values fail?
+This deep look into the workings of our agent and its reaction to different
+hyperparameters helped us understanding an inherent flaw in the reward structure
+of the CartPole problem forbidding the agent to perform at its best for
+as many episodes as possible, as soon as it could. Indeed, a continuous
+stream of rewards of +1 at each timestep drowned the information of "lost
+episodes" to the meta-learning agent.\\
 
-Could a meta-learning agent learn different problems? 
-What if the states are not of the same dimension? And the action space?
-Could it then play another different game?
+This discovery led us to propose a simple way to inject an informative reward
+at the end of each episode to allow the agent to play at its best performance
+as soon as it could, learning and passing information on to following episodes
+so that they could in turn perform even better.\\
 
+There is still much to explore in meta-learning. For instance, could a 
+meta-learning agent learn to play problems generated from different environment?
+What would be the similarity constraints for it to work? If the agent does
+manage to learn to perform well in different environments, could it then
+learn to play in a totally unseen environment? Once again, in that case,
+what would be the requirements in terms of similarity to ensure success?\\
+
+Furthermore, could environments with fundamental differences (different 
+dimensionalities of the state and action sets) be learned by the same agent?\\
+
+We are very confident in the multi-tasking capabilities of the meta-learning
+agent, and its ability to add an interpretation level between itself and the 
+state, both input-wise (when it receives observations) and output-wise (when
+it performs actions); and hope that there will be a strong interest in 
+researching the limits of its performance.\\
+
+\section{Source code}
+The source code for our agent, but also the code used to run all the
+experiments of this work has written in Python 3 \cite{python3} using
+Tensorflow \cite{tensorflow}. it is available at the following url:
+\url{https://github.com/fhennecker/meta-reinforcement-learning}.
