@@ -20,10 +20,19 @@ than the billions and billions of interconnected neurons humans have developed.
 
 \section{Feedforward neural networks}
 A neural network is a collection of interconnected \textit{neurons}. The
-simplest and most widely used networks are feedforward neural networks. In this
-setting, neurons are arranged into ordered layers of which the first one is
-called the input layer, and the last one is called the output layer
-(see Figure~\ref{fig:neural_network}).\\
+reason why neurons bear this name is because of their similarity to 
+human neurons. Each neuron is a computational unit which takes input
+from several other neurons (via synapses if one wishes to push the analogy further)
+and transforms this input into an output value, which will then be carried on
+to the following neurons.\\
+
+The simplest and most widely used networks are feedforward neural networks. In
+this setting, neurons are arranged into ordered layers of which the first one is
+called the input layer, the last one is called the output layer and
+intermediate layers are called hidden layers
+(see Figure~\ref{fig:neural_network}). Having neurons arranged in layers
+means that each neuron in a layer takes input from each of the neurons
+in the previous layer and outputs to each of the neurons in the next layer.\\
 
 The input vector, also called the feature vector \index{feature vector},
 is composed of \textbf{features} (measurements, properties,...). Say
@@ -62,7 +71,11 @@ connections between $i_1, i_2, i_3$ and $h_1$; and $b$ is a bias term.
 These weights are the learnable parameters of any neural network and will be 
 tuned during training to improve the accuracy of the network. 
 The activation function $f(\cdot)$ can be chosen arbitrarily, as long as it 
-is differentiable (so that backpropagation can work, see \ref{nn:training})
+is differentiable \footnote{This is mostly true, although some activation
+functions that have recently been made popular because of their good
+performance such as Rectified Linear Units (ReLUs) \cite{relus} are not 
+differentiable on all of their domain.}
+(so that backpropagation can work, see \ref{nn:training})
 but it is the same for all the neurons in the same layer. Some options are
 the sigmoid function, the hyperbolic tangent function and sometimes a simple
 linear function.\\
@@ -71,7 +84,7 @@ The reader might have noticed that using matrices is an efficient way of writing
 and executing computations within a neural network. Indeed, one could write
 the computation between the input layer and the first hidden layer as: 
 
-$$ h = f(iW_{ih} + b_h) $$
+$$ h = f_h(iW_{ih} + b_h) $$
 
 \noindent where : 
 \begin{itemize}
@@ -82,7 +95,23 @@ $$ h = f(iW_{ih} + b_h) $$
 	\item $W_{ih}$ is a $m\times n$ matrix containing the weights between
 		the input and hidden layer
 	\item $b_h$ is the $1\times n$ bias vector 
+	\item $f_h$ is the activation function choosen for the hidden layer
 \end{itemize}
+
+Similarly, the computation between the hidden layer and the output layer
+can be written as:
+$$ o = f_o(hW_{ho} + b_o) $$
+Hence the full transformation between the input and the output is:
+$$ o = f_o\left(f_h(iW_{ih} + b_h)W_{ho} + b_o\right) $$
+
+The example of Figure~\ref{fig:neural_network} is an extremely simple example.
+Often, neural networks will be \textbf{wider} (meaning that there are more
+neurons per layer) and \textbf{deeper} (meaning that there will be more layers).
+This can lead to issues and challenges when training them. The main issue
+related to deep neural networks is the vanishing gradient problem, exposed
+by Hochreiter \cite{vanishing_gradient}. More generally, adding more 
+neurons (or units) increases the possibility of \textbf{overfitting} (see
+Section~\ref{sec:regularisation}).
 
 \subsection{Training}
 \label{nn:training}
@@ -94,8 +123,8 @@ If we want to train a network to differentiate a cat from a dog based on a
 given set of measurements, we will have to expose it to a large number of examples
 of measurements and their associated ground truths \index{ground truth}
 (whether the measurements actually correspond to a cat or a dog). This large
-number of examples is called the \textbf{training set}. \index{training set}
-Training is
+number of examples is called the \textbf{training set} $\mathcal{D}$. 
+\index{training set} Training is
 then performed by alternating feedforward passes (distilling the input through
 the network and obtaining the network output) and backpropagation: modifiying 
 the weights of the connections between neurons (that will in turn modify 
@@ -110,21 +139,30 @@ The first thing we need to improve our network is a number which measures
 how far the network output is from the ground truth.
 This is exactly what a \textbf{loss function} \index{loss function} does: 
 it describes numerically the error between the target and the network output.
-One example of a loss function is the mean square error (MSE) \index{MSE}:
-$$ \mathcal{L} = (t-p)^2$$
-where $t$ is the target, or the ground truth, and $p$ is the prediction. In
-many cases, $t$ and $p$ are vectors, so we may sum or average the loss computed
-over components.
+One example of a loss function is the mean square error (MSE) \index{MSE} which
+is very useful in regression problems:
+$$ \mathcal{L}_{\text{MSE}} = \sum\limits_{(x, t) \in \mathcal{D}}\frac{(f(x)-t)^2}{|\mathcal{D}|}$$
+where $x$ is a feature vector, $t$ is its corresponding ground truth and $f$
+is our model. In
+many cases, $f(x)$ and $t$ are vectors, so we may sum or average the loss computed
+over components.\\
+
+For classification problems, like the cats and dogs example, one typically uses
+a cross-entropy loss which is defined as the following for one sample:
+$$-\sum\limits_c t_c\log(f(x)_c)$$
+where $c$ is the class index, hence the loss computed over the whole dataset being:
+$$\mathcal{L}_{\text{CE}} = \sum\limits_{(x, t) \in \mathcal{D}}
+\frac{-\sum\limits_c t_c\log(f(x)_c)}{|\mathcal{D}|}$$
 In our cats and dogs example, let us consider that the ground truth for
 "cat" corresponds to the output vector $[1, 0]$ and the ground truth for "dog"
 corresponds to the output vector $[0, 1]$. If the network predicts $[0.3, 0.7]$
 when it is given measurements of a cat, the loss function will equate to :
-$$ \mathcal{L} = ([1, 0]-[0.3, 0.7])^2 = (1-0.3)^2 + (0-0.7)^2 = 0.98$$
+$$ \mathcal{L} = -(1\log(0.3) + 0\log(0.7)) = -0.47$$
 whereas if it had predicted $[0.9, 0.1]$, the loss would have equated to:
-$$ \mathcal{L} = ([1, 0]-[0.9, 0.1])^2 = (1-0.9)^2 + (0-0.1)^2 = 0.02$$
+$$ \mathcal{L} = -(1\log(0.9) + 0\log(0.1)) = -0.95$$
 
 The experienced reader might already have concluded that since we want to
-minimise the loss function, we are confronted to an optimisation problem.
+minimise the loss function, we are confronted with an optimisation problem.
 
 \subsubsection{Backpropagation}
 \index{backpropagation}
@@ -161,6 +199,61 @@ reduce the chance of finding a global optimum. Reducing the learning rate,
 on the other hand, could make the training slower but at the same time 
 increase the probability of finding a global optimum.\\
 
+Let us derive the gradient of a weight which connects a neuron in the 
+last hidden layer to a neuron in the output layer in the case
+where we have a MSE loss:
+$$ \Delta w_{oh} = -\alpha\frac{\delta\mathcal{L}}{\delta w_{oh}}$$
+which can be expanded using the chain rule:
+\begin{equation}
+\Delta w_{oh} = -\alpha
+\frac{\delta\mathcal{L}}{\delta a_o}
+\frac{\delta a_o}{\delta net_o}
+\frac{\delta net_o}{\delta w_{oh}}
+	\label{eq:chainrule}
+\end{equation}
+where $net_o$ is the input of neuron $o$ and $a_o$ is the activation value
+of neuron $o$.\\
+
+Let us analyse each partial derivative of equation~\ref{eq:chainrule}.
+The derivative of the error with respect to the activation is :
+$$ \frac{\delta\mathcal{L}}{\delta a_o} = 
+\frac{\delta(\frac{1}{2}(t_o-a_o)^2)}{\delta a_o} = -(t_o-a_o)$$
+Notice that we injected a $\frac{1}{2}$ factor to the error to simplify 
+computations.\\
+
+The derivative of the activation with respect to the input of the neuron is:
+$$ \frac{\delta a_o}{\delta net_o} $$
+It is simply the derivative of the activation function chosen for
+the output layer. Since this derivative will vary depending on the choice
+of activation function, we will simply denote is as $f_o'$.\\
+
+
+The derivative of the neuron input with respect to the weight is
+$$ \frac{\delta net_o}{\delta w_{oh}} = \frac{\delta (w_{oh}a_h)}{\delta w_{oh}}
+ = a_h$$
+
+Hence we will update a weight between the last hidden layer and the output
+layer with:
+$$ \Delta w_{oh} = \alpha (t_o-a_o)f_o'(net_o)a_h$$
+
+For weights that connect the penultimate hidden layer to the last layer (in
+our case, the input layer to the hidden layer), the error is slightly more 
+complicated as it depends on the error of all $k$ neurons in the hidden layer,
+and not just of one output neuron. The gradient of such a weight can be
+written as:
+\begin{equation}
+\Delta w_{hi} = -\alpha
+	\sum\limits_k \left(
+	\frac{\delta\mathcal{L}}{\delta a_k}
+	\frac{\delta a_k}{\delta net_k}
+	\frac{\delta net_k}{\delta a_h}
+	\right)
+\frac{\delta a_h}{\delta net_h}
+\frac{\delta net_h}{\delta w_{hi}}
+	\label{eq:chainrule_further}
+\end{equation}
+A similar reasoning can be used to unfold equation \ref{eq:chainrule_further}.
+
 Backpropagation uses the fact that activation functions are differentiable to
 perform gradient descent. Indeed, the error signal is a surface in a space
 of which the dimensionality is equal to the number of parameters in the
@@ -181,6 +274,8 @@ ground truths. For each of these examples, or samples:
 		all the weights
 \end{enumerate}
 
+\subsection{Overfitting and regularisation}
+\label{sec:regularisation}
 
 \section{Recurrent neural networks}
 There is one limitation to feedforward neural networks which can be particulary
