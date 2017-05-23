@@ -19,22 +19,43 @@ artificial intelligence went through its ebbs and flows throughout the years,
 machine learning evolved from an idea to a prolific field of research, and
 some of its topics saw massive application into real world domains.\\
 
-The idea of machine learning evolved to become the design of computer systems
-which perform tasks without having been explicitly programmed to perform them.
-Instead of writing specific task-related rules, a machine learning practitioner
-designs a model which will learn to perform correctly by experience, that is by
-looking at examples of correct task completion, but also by making and looking
-at mistakes.\\
+Humans have a tendency to consider hard tasks easy and easy tasks hard.
+Understanding the contents of an image should be very easy for any human
+being, but it is far from it for a computer. How could a programmer write
+a program or a set of rules to describe perfectly every situation that could
+be presented on an image, only based on the values of its pixels? This is
+of course intractable, and the whole appeal of machine learning is that it
+allows us to build systems that \textit{learn} their own set of rules from
+their own experience (by seeing many examples of images being
+described). One only has to create a program with learnable parameters and an
+algorithm that will tune the program to make it perform better with every
+example it sees instead of writing a highly complex set of rules and 
+instructions. The second obvious advantage of this method is that the existing
+machine learning techniques to this day are very general and can solve an
+enormous class of problems -- one just has to show different examples to the
+learning program.\\
 
+\subsection{Data-based methods}
 The most popular and widely used machine learning algorithms and techniques
-usually come from supervised and unsupervised machine learning.
-The broad goal of supervised machine learning is to find a function that maps
-some input vector $x$ to some output vector $y$. One example of this would be
-to try to categorise patients that either have or don't have some disease. 
-The input vector $x$ could contain measurements such as blood pressure, the 
-quantity of a given substance in the patient's blood, etc. The output vector
-$y$ would be either $[0]$ if the patient is ill, and $[1]$ if the patient is
-not.\\
+fall in the category of what could be called data-based methods. One subset
+of these data-based methods is called supervised learning and 
+allows, among others, to classify or to predict data. 
+The goal of classification is to assign a label (or a class) to a set of 
+measurements. One example of this would be
+to try to categorise patients that either have or don't have some disease.
+
+The first thing to do is to collect measurements on which we can make an
+informed decision. All these measurements are put together in 
+the input vector $x$, also called the \textbf{feature vector}. For our example,
+it could contain measurements such as blood pressure, the 
+quantity of a given substance in the patient's blood, etc.
+
+Since we want to show our algorithm examples of people who are ill but
+also of people who are not ill, we will have to associate each feature vector
+with a \textbf{target vector}, also called its \textbf{ground truth} $y$ 
+containing all the classes of the problem : 
+being ill and not being ill. In our case, we will define $y = [1, 0]$ as
+an ill patient and $y = [0, 1]$ as a healthy patient.\\
 
 \begin{figure}
 	\centering
@@ -49,18 +70,22 @@ not.\\
 	\label{fig:supervised_ml}
 \end{figure}
 
-If we could find a function mapping $x$ to $y$, we could compute a probability
-distribution over whether the patient is ill or not only by knowing $x$. 
+We now have have a \textbf{dataset} full of measurements $x$ associated with 
+their class $y$.
+If we could find a function mapping $x$ to $y$, we could then make an informed
+diagnostic for a new patient with new measurements $x$ that we have never seen,
+without knowing whether the patient is actually ill or not.
 Supervised machine learning provides the following general process (illustrated
 in Figure~\ref{fig:supervised_ml}) to find
 such a function : one defines a model which has
-\textit{learnable parameters}; that is values which impact the output of the
-function, and performs \textbf{training}. The process of training is to
-sample data points from a \textbf{training set}, containing pairs of input
+\textit{learnable parameters} (values which impact the output of the
+function) and performs \textbf{training}. The process of training is to
+sample data points from a \textbf{training dataset}, containing pairs of input
 vectors and output vectors. We then feed the input vector to the model, compare
-the output that we get from the model with the output we are supposed to get,
-and tune the learnable parameters so to minimise the error between the model
-output and the correct output. We repeat this process, showing many samples
+the output that we get from the model (the \textbf{prediction}) 
+with the output we are supposed to get (the \textbf{target}),
+and tune the learnable parameters so to minimise the error between the
+prediction and the target. We repeat this process, showing many samples
 of the training set to the model until it reaches a good enough accuracy. Once
 the function is learned, we can predict to a certain level of accuracy new 
 outputs from unseen feature vectors: for example, we can compute the probability
@@ -73,9 +98,16 @@ the process is largely the same : sample data, update learnable parameters
 until the model is fixed at a good enough accuracy and inference can be
 performed data point by data point after training.\\
 
+\subsection{Going further : adding interaction}
 To the experienced reader, unsupervised machine learning and supervised machine
 learning might sound like fancy names for statistics; and one could argue that
-they are indeed. A subfield of machine learning that veers off slightly more
+they are indeed. Classification and prediction are tasks that humans have
+to perform on a daily basis, but they remain relatively simple. Indeed, the 
+algorithms exposed above do not interact with an environment in any way and do
+not perform harder tasks such as planning and developing complex strategies
+to solve a given problem.\\
+
+A subfield of machine learning that veers off slightly more
 from statistics and subjectively gets closer to human-like behaviour
 would be \textbf{reinforcement learning}. In this setting, we train an agent
 (an entity which can perform actions, that is anything that can perceive and
@@ -105,6 +137,7 @@ randomly, but sooner or later, it will figure out how to balance the pole.\\
 	\label{fig:cartpole_illustration}
 \end{figure}
 
+\subsection{One step further : learning to learn}
 One common issue between all of the techniques described above is that once
 training is over, the behaviour of the trained agent or model will not change
 or adapt once the conditions, or some intrinsic parameters of the problem
@@ -112,8 +145,16 @@ change. If we present the CartPole agent with a pole that is twice as heavy,
 or twice as long as the one it has been trained with, it will likely fail to 
 balance the pole. We have taught an agent how to solve one task, but we have
 not taught it to learn how to solve a task. This thesis will explore ways to 
-teach an agent how to learn to solve tasks.
+teach an agent how to learn to solve tasks.\\
 
+Learning to learn, as opposed to learning to solve, could open the door to a
+whole new level of performance from our agents. Not only could they 
+be able to generalise what they have learnt to problems that are parametrised
+differently to what they have seen, but they could also learn to perform
+tasks that are fundamentally different. Recent studies \cite{learningtorl,
+fastrlviaslowrl} also showed their ability to perform one-shot learning in
+the context of a maze : the agent shows an ability to learn the architecture
+of a maze in one episode before being able to solve it from any departure point.
 
 
 \section{Structure}
@@ -130,7 +171,9 @@ and different parameters affect its performance.\\
 
 Throughout part II, an analysis of the application of meta-learning to the
 CartPole problem will be carried on, and discussion about why it performs
-well in certain cases and why it fails in other cases will take place.
+well in certain cases and why it fails in other cases will take place. We will
+then propose a solution to the intrinsic problem related to the application
+of meta-learning to problems similar to CartPole.
 
 
 \section{Main contributions}

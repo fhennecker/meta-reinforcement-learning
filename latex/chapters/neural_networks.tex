@@ -91,10 +91,10 @@ attribute a random value (that is sampled from a user-defined distribution)
 to each weight in the network.\\
 
 If we want to train a network to differentiate a cat from a dog based on a
-given set of measurements, we will have to show it a large number of examples
+given set of measurements, we will have to expose it to a large number of examples
 of measurements and their associated ground truths \index{ground truth}
 (whether the measurements actually correspond to a cat or a dog). This large
-number of examples is called the \textbf{training set} \index{training set}.
+number of examples is called the \textbf{training set}. \index{training set}
 Training is
 then performed by alternating feedforward passes (distilling the input through
 the network and obtaining the network output) and backpropagation: modifiying 
@@ -151,10 +151,15 @@ $$\nabla\mathcal{L} = \left(
   \frac{\delta\mathcal{L}}{\delta w_3}, ...,
   \frac{\delta\mathcal{L}}{\delta w_k}\right) 
 $$
-for each weight in the network. Each weight will then be modified by adding
-a small increment in the direction of the gradient:
+Each weight will then be modified by adding a small increment in the direction 
+of the gradient:
 $$ \Delta w_i = - \alpha \frac{\delta\mathcal{L}}{\delta w_i}$$
-where $\alpha$ is the learning rate.\\
+where $\alpha$ is the learning rate, a hyperparameter chosen by the designer
+of the network that defines the size of the steps to make in the direction
+of a smaller error. A high learning rate may accelerate training but could
+reduce the chance of finding a global optimum. Reducing the learning rate,
+on the other hand, could make the training slower but at the same time 
+increase the probability of finding a global optimum.\\
 
 Backpropagation uses the fact that activation functions are differentiable to
 perform gradient descent. Indeed, the error signal is a surface in a space
@@ -238,8 +243,8 @@ the output of the cell), LSTMs also carry what is called the
 able to handle longer term memory management by using \textit{gates} to 
 access and modify it. All gates receive a concatenation of the previous hidden
 state $h_{t-1}$ and the new input vector $x_t$. They feed this input through a
-sigmoid layer to an element-wise multiplication. There are three in total, as
-they can be seen from left to right on Figure~\ref{fig:lstm}:
+sigmoid layer (\framebox{sig})to an element-wise multiplication. There are 
+three in total, as they can be seen from left to right on Figure~\ref{fig:lstm}:
 \begin{enumerate}
 	\item the \textit{forget gate} is the first one. It will multiply each
 		value in the memory cell by a value in $[0, 1]$, keeping only
