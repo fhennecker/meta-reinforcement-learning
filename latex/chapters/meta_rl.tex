@@ -26,17 +26,8 @@ $$ \begin{cases} P(r \mid \text{arm}_1) = p_b \\
 P(r \mid \text{arm}_2) = 1 - p_b  \end{cases} $$
 where $P(r \mid \text{arm}_1)$ is the probability of arm 1 to generate a reward
 and $0 \leq p_b \leq 1$ is the parameter of the bandit problem. One way to
-solve this problem would be to use the $\epsilon$-greedy strategy. 
-\todo{ref instead of explaining?}
-This
-strategy keeps an average of the reward of each earm and chooses the next
-action the following way:
-$$ \text{choose} \begin{cases}
-	\text{action with the best average reward so far} & \text{with probability } (1-\epsilon) 
-	\\
-	\text{random action} & \text{otherwise}
-\end{cases}
-$$
+solve this problem would be to use the $\epsilon$-greedy strategy (see
+Section~\ref{sec:rl_example}). \\
 
 This raises the question about choosing $\epsilon$. Choosing a low $\epsilon$
 encourages exploitation but we have a higher chance of wrongly estimating $p_b$.
@@ -63,9 +54,7 @@ Recently, Wang et al. \cite{learningtorl} and Duan et al. \cite{fastrlviaslowrl}
 proposed the idea of using reinforcement learning to learn an algorithm which
 deploys an optimal strategy for a class of problems sharing a similar structure.
 We will use the name "meta-RL" or meta-learning for this technique, as proposed 
-by Wang et al. Generally, we will call the learned algorithm the inner
-algorithm, and the algorithm that learns to learn the outer algorithm.\\
-
+by Wang et al. \\
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/normal_bandit_training.eps}
@@ -77,26 +66,37 @@ algorithm, and the algorithm that learns to learn the outer algorithm.\\
 \end{figure}
 
 In classic reinforcement learning (see Figure~\ref{fig:normal_bandit_training}),
-the goal of the agent is to maximise its
-expected reward for each episode; for this, we let the agent play several
-episodes, choosing actions according to a policy which is learned over time, 
-but of which the learning process is manually defined by a strategy (Gittins,
-UCB, ...) hoping that the agent will yield high rewards as fast as possible.
-The part of this process we are interested in is the hand-designed updating of
-the policy inbetween episodes.\\
+\textbf{the network represents a policy.} Its goal is to maximise its reward
+for each episode, and it is trained by looping the following steps:
+\begin{enumerate}
+	\item let the network play an episode
+	\item update the network using a hand-designed strategy (Gittins, UCB,
+		Q-learning \cite{qlearning}, SARSA \cite{sarsa}, ...) to 
+		increase the total reward of an episode
+\end{enumerate}
 
 As stated at the beginning of this chapter, designing strategies to learn
 policies is a hard task and can demand a sensitive tuning of parameters.
-In meta-RL, instead of manually designing ways to make the agent succeed faster,
-the agent plays a \textbf{trial} \index{trial} of several episodes of the same problem
-and has to maximise its expected reward across all episodes of a trial (see 
+In meta-RL, \textbf{the network represents an algorithm which learns a policy}
+Its goal is to be the best possible learning strategy, which is why we train
+it differently:
+\begin{enumerate}
+	\item let the network play a \textbf{trial} \index{trial} of several
+		episodes of the same problem
+	\item update the network so that it learns faster
+\end{enumerate}
+In this context, the network has to maximise its expected reward across
+\textbf{all} episodes of a trial (see 
 Figure~\ref{fig:meta_bandit_training}). Note that a trial replicates the setting
 of learning to solve a problem -- the agent is not learning to solve a 
 problem anymore, it is learning to learn how to solve a problem, but in 
 a very low number of episodes rather than the many episodes needed 
 to train a standard reinforcement learning agent. This will incentivize the agent
 to understand the structure of a problem and develop a strategy that allows it 
-to estimate the parameters of the problem as fast as possible.\\
+to estimate the parameters of the problem as fast as possible.
+Generally, we will call the learned policy the inner 
+algorithm, and the algorithm that learns the policy the outer algorithm.\\
+
 
 \begin{figure}
 	\centering
@@ -126,7 +126,10 @@ carries a hidden state from the first episode in the trial to the last.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=0.2\linewidth]{fig/a2c_meta.eps}
-	\caption{The meta-learning A2C agent}
+	\caption{The meta-learning A2C agent. The key difference with a
+	standard A2C agent is that it receives the values 
+	$[a_{t-1},r_{t-1},d_{t-1}]$ in addition to the state observation. It
+	is of course also trained in a different way to a standard A2C agent.}
 	\label{fig:a2c_meta}
 \end{figure}
 
@@ -142,6 +145,8 @@ carries a hidden state from the first episode in the trial to the last.\\
 	which just terminated)}
 	\label{fig:meta_rl_timestep}
 \end{figure}
+
+
 
 The general setup presented by Wang et al. uses a recurrent neural network of
 which the weights, once trained "slowly" over several trials of multiple
@@ -164,7 +169,14 @@ previous episodes as it has to optimise its expected reward across multiple
 episodes.
 
 \section{Agent architecture}
-Our agent is an A2C agent built as described in Figure~\ref{fig:a2c_meta}.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/agent_architecture.eps}
+	\caption{Architecture of the meta-learning A2C agent}
+	\label{fig:agent_architecture}
+\end{figure}
+We use the same A2C agent that Wang et al. \cite{learningtorl} have used
+for their bandit experiments. It is described in Figure~\ref{fig:agent_architecture}.
 The input vector is a concatenation of the state observation, the previous
 action taken, the reward obtained at the previous timestep and the termination
 flag :
@@ -196,7 +208,14 @@ Unless stated, the discount factor used in all experiments is $\gamma=0.9$.
 
 
 \section{Meta-learning dependent bandits}
-Let us come back to the problem stated previously as an example : a dependent
+Let us come back to the problem stated previously as an example. This will
+prove useful as it is the same setting used by Wang et al. \cite{learningtorl}.
+We can then compare our results with theirs to introduce the current state
+of the art, test our implementation and verify that their results can 
+be reproduced. This setting has the advantage of being relatively simple
+so it will help us understand meta-learning before jumping to a harder problem.\\
+
+The setting is the following: a dependent
 bandit with 2 arms of which the reward distribution is a Bernoulli distribution
 with the following parameters : 
 $$ \begin{cases} P(r \mid \text{arm}_1) = p_b \\ 
@@ -223,6 +242,13 @@ only receives the last action taken, the previous reward and the termination
 flag as input. The discount factor $\gamma$ is set to 0.8 to replicate 
 Wang et al.'s experiment \cite{learningtorl}.\\
 
+Wang et al. \cite{learningtorl} achieved creating a meta-learning
+agent that could learn a dependent problem as the one defined above in only 
+a few episodes (one episode being one pull of the bandit). For some experiments,
+their agent outperforms the state of the art; and a look over the behaviour
+of their agent shows only a minimal number of episodes spent exploring before
+exploiting only.\\
+
 Figure~\ref{fig:bandit_reward} shows that after some time, the agent figures out
 a way to yield an excellent reward over all trials: for trials using bandits
 with $p_b \in [0.2, 0.8]$, even if the agent pulled the best arm for
@@ -247,7 +273,7 @@ of the trial to then always play what it judges is the best episode.\\
 
 We should emphasize on the importance of these results. If we had used the 
 $\epsilon$-greedy method as is, the difference in performance would be 
-significantly different on several aspects:
+significant on several aspects:
 \begin{itemize}
 	\item with a fixed $\epsilon$, sticking to the optimal arm would have
 		been impossible (as a random action is required from time to 
@@ -277,7 +303,10 @@ UCB and Gittins.\\
 	whether they are optimal during training. On the left, a black dot
 	represents the fact that arm \#1 has been pulled and a white dot
 	represents the fact that arm \#2 has been pulled. On the right, a white
-	dot signifies that the best arm has been pulled.}
+	dot signifies that the best arm has been pulled. This figure shows
+	that after a bit of training, the agent learns to quickly identify
+	which arm is the optimal arm and pulls that arm only after only 
+	a few episodes.}
 	\label{fig:bandit_optimality}
 \end{figure}
 
@@ -308,60 +337,7 @@ are closer to 0.5, even though it has only ever seen $p_b = 0.8$ and $p_b = 0.9$
 
 
 
-\section{Meta-learning CartPole setting}
-\label{sec:setting}
-We will now extend the study the performance of meta-learning on multi-timestep
-episodes; and for that purpose, we will use various distributions of 
-the CartPole problem. The CartPole environment describes a cart, rolling on 
-a frictionless rail (see Figure~\ref{fig:cartpole_illustration}). 
-A pole is attached to the cart and has to be kept balanced
-above the cart for more than 195 timesteps by also keeping the cart within a 
-defined section of the rail. The agent has two actions at its disposal: nudge
-the cart left or right. The observation of the state is a 4-valued vector 
-containing the position of the cart, its velocity, the angle of the pole and
-the velocity of the pole at its tip. At each time step, the environment emits
-a reward of +1; so if the agent keeps the pole and the cart in their 
-respective acceptable ranges for 20 timesteps, it will receive a total reward
-of 20.\\
-
-
-\subsection{Generating a distribution of CartPole problems}
-To generate a distribution of similar, yet different CartPole problems, we
-will play with two different parameters.
-
-\paragraph{Permutations} In standard reinforcement learning, the state
-observation vector is always ordered, meaning that each component of the vector
-always represents the same value (in CartPole for example, the first component
-represents the position of the cart). We can generate a set of $4! = 24$
-CartPole problems where for each problem, the state observation vector is
-permutated with a unique permutation. This means that the agent will
-receive a vector of 4 values without knowing which is which.
-
-\paragraph{Actions inversion} We will also introduce the inversion of the
-agent's actions. Just like the input vector, the policy output is ordered
-(the first component of the policy corresponds to the first action which is
-always the same). We will study how inverting actions affects training : instead
-of always associating the first component of the policy vector with going left,
-we will duplicate each of the 24 problems stated above by inverting the left
-and the right action. This adds up to a distribution of 48 CartPole problems.\\
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\linewidth]{fig/meta_cartpole.eps}
-	\caption{Meta-learning for multi-timestep episodes. A is the agent,
-	$E_0$ is the problem selected from the distribution for the duration
-	of a trial, $s_t$, is the state of the environment, $r_t$, the reward,
-	$a_t$ is the chosen action, $d_t$ the terminal state and $h_t$ is
-	the hidden state at timestep $t$. Note that the same environment is
-	used throughout all episodes of the same trial.}
-	\label{fig:meta_cartpole}
-\end{figure}
-
-Figure~\ref{fig:meta_cartpole} shows how the single-timestep framework
-presented in Figure~\ref{fig:meta_bandit_training} adapts to episodes
-with multiple timesteps.
-
-
+\todo{conclusion}
 
 
 

@@ -7,6 +7,7 @@
 	consequence.}''
 \begin{flushright}\textbf{Tim Urban}, on procrastination\end{flushright}
 \end{quotation}
+\vspace*{0.5cm}
 
 Let us now look at why the reward of the first episode in a dual-episode
 trial drops to random policy level when we know the agent is able to receive
@@ -171,7 +172,13 @@ high scores.
 	\label{fig:varied_gamma}
 \end{figure}
 
-\todo{Should I try to explain why and how?}
+High values of $\gamma$ directly lead to higher returns, and this has a
+double effect:
+\begin{enumerate}
+	\item gradients will be scaled by a bigger factor
+\end{enumerate}
+\todo{refs?}
+
 
 \subsection{Training on more episodes}
 \label{section:beyond:moreeps}
@@ -303,3 +310,29 @@ of only the last one.\\
 \end{figure}
 
 
+\subsubsection{Conclusion}
+We have seen that for a small number of episodes per trial, only the last
+episode manages to reach an optimal performance at the expense of all 
+previous episodes. This is due to the fact that CartPole generates a reward
+of +1 at every timestep and our setup doesn't allow the agent to 
+know that an episode has finished too early (and that it is a bad thing).
+All it ever sees is a constant stream of positive reward until it reaches
+the last episode where the stream is at risk of ending if the agent doesn't
+balance the pole for as long as it can.\\
+
+We have tried tuning the discount factor, hoping that higher values would
+encourage the agent to perform well in non-terminal episodes, but 
+even though a trend showed that this idea could have worked (at least 
+to help the agent win the last $k$ episodes, which is not as good as winning
+as soon as it can), training would diverge before we reached values for $\gamma$
+where we would see several terminal episodes reach an optimal reward.\\
+
+Increasing the number of episodes per trial gave more interesing results;
+after a critical threshold, it looks like several terminal episodes 
+reach high rewards, and another benefit of training over longer trials is
+the better performance of agents beyond their training horizon (playing
+more episodes than what they have been trained for). An agent trained 
+on trials of 5 episodes would quickly return to a random policy-like reward
+after playing 5 episodes whereas agents trained for 10 episodes managed
+to keep a reward that was significantly higher than random -- although still
+worse than optimal performance.

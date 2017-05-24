@@ -3,6 +3,7 @@
 \noindent ``\emph{quote}''
 \begin{flushright}\textbf{author}\end{flushright}
 \end{quotation}
+\vspace*{0.5cm}
 
 After having reviewed the foundations of artificial neural networks and
 reinforcement learning, we went through the reasons why meta-learning is
@@ -66,6 +67,7 @@ at the end of each episode to allow the agent to play at its best performance
 as soon as it could, learning and passing information on to following episodes
 so that they could in turn perform even better.\\
 
+\section{Future work}
 There is still much to explore in meta-learning. For instance, could a 
 meta-learning agent learn to play problems generated from different environment?
 What would be the similarity constraints for it to work? If the agent does
@@ -81,6 +83,12 @@ agent, and its ability to add an interpretation level between itself and the
 state, both input-wise (when it receives observations) and output-wise (when
 it performs actions); and hope that there will be a strong interest in 
 researching the limits of its performance.\\
+
+Trying the voluntary thing:\\
+
+We suspect that adapting the architecture presented by Wang et al. to allow
+the outer algorithm to have knowledge of total episode rewards, instead of
+timestep-only rewards could lead to an overall better learning algorithm.
 
 \section{Source code}
 The source code for our agent, but also the code used to run all the

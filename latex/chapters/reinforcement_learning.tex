@@ -86,6 +86,7 @@ in a certain state $s_i$. This policy is \textbf{deterministic} if and only if:
 Otherwise, the policy is \textbf{stochastic}.
 
 \section{An example : the 2-armed bandit problem}
+\label{sec:rl_example}
 The 2-armed bandit setting defines two actions that the agent can perform,
 each of which associated with one arm. Each arm has an underlying reward
 distribution -- for the sake of this example, let us define each arm with the
@@ -134,7 +135,10 @@ that a value will be attributed to each action based on how well it did
 in the past. Suppose action $a$ has been chosen $K_a$ times before timestep
 $t$, and the agent has received rewards $r_1$, $r_2$,... while playing it. 
 The value of action $a$ is:
-$$Q_t(a) = \frac{r_1 + r_2 + ... + r_{K_a}}{K_a} $$
+\begin{equation}
+Q_t(a) = \frac{r_1 + r_2 + ... + r_{K_a}}{K_a}
+	\label{eq:action-value}
+\end{equation}
 
 \subsubsection{$\epsilon$-greedy}
 This strategy keeps an average of the reward of each earm and chooses the next
@@ -255,14 +259,34 @@ in which $\alpha$ is the learning rate and $a$ was the chosen action.
 \subsection{Value methods}
 There is another category of methods which use an estimate of the value of
 actions or states; in other words functions which map states or state-action
-pairs to estimates of their discounted future reward $R_t$. Once again, we can
-use neural networks to estimate such functions. We then only have to define
-a policy that decides which actions to take given these value estimates; one
-example of such a policy could be a deterministic policy choosing the action
-leading to the state with the highest value.\\
+pairs to estimates of their discounted future reward $R_t$. We have seen
+examples of such functions previously: $\epsilon$-greedy and softmax
+selection both are value-based methods (see Section~\ref{sec:rl_example} and
+more specifically equation~\ref{eq:action-value}).\\
 
-\paragraph{V-values} estimate the value of a state; i.e. the estimated
-discounted reward achievable from a specific state.
+There is an important
+difference between value-based methods and policy gradient methods: in the
+former, the policy has to be defined by hand whereas the latter are
+end-to-end (meaning that the policy is learned too). In value-based methods,
+the model designer has to choose a policy that selects an action based
+on estimations provided by value functions.\\
+
+\subsubsection{V-values} 
+Let us consider a problem with a relatively small set of states 
+$\{s_1, s_2, ..., s_k\}$. We could estimate the \textbf{value} of 
+states based on the expected discounted reward we can reach from each state, 
+based on a policy $\pi$: 
+$$ V^\pi(s) = R_t = \mathbb{E}
+   \left[ r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ...  \right]$$
+Using the Bellman equation, we can rewrite this estimate as:
+$$ V^\pi(s) = \mathbb{E}\left[ r_t + \gamma V(s')\right]$$
+At first however, this estimate is not known. Let us start with an 
+arbitrarily initialised table (where the value of each state is 0 for example).
+We will interact with the environment by choosing actions with the following
+deterministic policy:
+$$ \pi(s) = \text{arg}\max\limits_a \sum\limits_{s'} p(s' \mid s, a)[r(s,a,s')
++ \gamma V^\pi(s')]$$
+
 The optimal state value function 
 $$ V^*(s) = R_t = \mathbb{E}
    \left[ r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ...  \right]$$
@@ -273,6 +297,12 @@ where $s'$ is the state reached after $s$.\\
 Indeed, under the condition that $V(s)$ is optimal, the value of a state is the 
 sum of the discounted value of the unique optimal next state and the reward of
 the transition to that next state.\\
+
+Once again, we can
+use neural networks to estimate such functions. We then only have to define
+a policy that decides which actions to take given these value estimates; one
+example of such a policy could be a deterministic policy choosing the action
+leading to the state with the highest value.\\
 
 This can be used as an update rule for the $V$ network with a loss similar to :
 \begin{equation}
@@ -320,7 +350,8 @@ A2C consists of a neural network
 of which the input is the state $s_t$, and which outputs both a value function
 $V(s_t)$ and a policy $\pi(s_t)$ (see Figure~\ref{fig:a2c}). These outputs
 respectively use the updates rules described in equations \ref{eq:v_update_rule}
-and \ref{eq:adv_update_rule}.  Algorithm~\ref{algo:a2c} shows the training
+and \ref{eq:adv_update_rule}.  \todo{explain what the losses do}
+Algorithm~\ref{algo:a2c} shows the training
 process of the A2C agent which alternates playing episodes and updating the
 network according to the agent's experience.
 
