@@ -177,16 +177,23 @@ of meta-learning to problems similar to CartPole.
 
 
 \section{Main contributions}
-\noindent
-Here are the main contributions
-\vspace{1cm}
-\begin{enumerate}
-    \item hello
-\end{enumerate}
+The main contributions of this work are twofold.
 
-\clearpage
-\section{Notations}
+\paragraph{Meta-learning state of the art.}
+A comprehensive background and state of the art are
+provided to understand the goals and stakes of meta reinforcement learning.
+We have implemented state of the art algorithms in meta-learning and made
+their implementation public. Experiments in recent papers have been
+recreated to verify and extend the results found in the literature.
 
-%
-notations, signification, page where it is defined and reference
-\
+\paragraph{Study of meta-learning applied to a new setting.} We apply meta-learning
+to a distribution of tasks derived from the CartPole problem. We extensively
+study the dynamics of meta-learning applied to a problem with a continuous
+reward over long episodes, and the impact of the learning horizon (both
+in terms of number of episodes the meta-learning agent is allowed to play
+and the discount factor). 
+
+We identify a critical flaw in the reward pattern provided by the CartPole
+environment and propose a simple and effective strategy to counteract its
+negative consequences, effectively allowing meta-learning to occur in
+problems with similar continuous reward structures.

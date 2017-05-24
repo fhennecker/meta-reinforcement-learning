@@ -65,7 +65,14 @@ episodes" to the meta-learning agent.\\
 This discovery led us to propose a simple way to inject an informative reward
 at the end of each episode to allow the agent to play at its best performance
 as soon as it could, learning and passing information on to following episodes
-so that they could in turn perform even better.\\
+so that they could in turn perform even better. After having successfully
+trained an agent to balance the pole in CartPole with this informative reward,
+we tested it on the novel, unseen task of failing at what it had been trained
+to do by starting to give it positive reward only after its failure. To
+our surprise, the agent managed to learn to fail within the first episode
+of its trials, later taking action to fail its episodes as quickly as it 
+could. This new problem was sucessfully learned only within \textbf{one} episode
+without having to be retrained.\\
 
 \section{Future work}
 There is still much to explore in meta-learning. For instance, could a 
@@ -84,11 +91,12 @@ state, both input-wise (when it receives observations) and output-wise (when
 it performs actions); and hope that there will be a strong interest in 
 researching the limits of its performance.\\
 
-Trying the voluntary thing:\\
-
 We suspect that adapting the architecture presented by Wang et al. to allow
-the outer algorithm to have knowledge of total episode rewards, instead of
-timestep-only rewards could lead to an overall better learning algorithm.
+the outer algorithm to access more information that is implicitly or
+explicitly available to strategy designers (e.g. have knowledge of total 
+episode rewards instead of timestep-only rewards) could lead to an overall 
+better learning algorithm.\\
+
 
 \section{Source code}
 The source code for our agent, but also the code used to run all the
