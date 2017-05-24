@@ -168,6 +168,7 @@ minimise the loss function, we are confronted with an optimisation problem.
 \index{backpropagation}
 We will only summarise backpropagation in this section as explaining it in
 full is out of the scope of this paper.
+\todo{remove}
 The problem at hand is indeed an optimisation problem with the following
 parameters:
 \begin{itemize}
@@ -274,8 +275,50 @@ ground truths. For each of these examples, or samples:
 		all the weights
 \end{enumerate}
 
-\subsection{Overfitting and regularisation}
+\subsection{Testing, overfitting and regularisation}
 \label{sec:regularisation}
+So far, we only discussed training neural networks, but testing and
+evaluating their performance is just as important. Indeed, as hinted at
+previously, there is a chance that neural networks \textbf{overfit}. This
+means that the network will learn a function which fits the training data
+very well, but that doesn't \textbf{generalise} to new data. We use
+another dataset, the \textbf{validation} set, which contains pairs of feature
+vectors and their associated ground truths that have never been seen by the
+model during training. If the performance of the network is much lower on
+the validation set than on the training set, we know that it has overfit
+the training data. We use the validation set to test different 
+values of hyperparameters (number of layers, size of layers, learning rate,...),
+and we choose the combination of hyperparameters and overfitting avoidance
+techniques that minimise the error on the validation set.\\
+
+\todo{figure}
+
+There are several ways of avoiding overfitting, of which some are:
+\begin{itemize}
+	\item \textbf{dropout} \cite{dropout} which "disables" neurons in the 
+		network with a certain probability during training. This allows
+		for a large combination of thinner sub-networks to learn
+		separately from other sub-networks.
+	\item adding more data, or augmenting the existing data by transforming
+		it can also increase generalisation performance as the network
+		won't "remember" a given set of examples as opposed to truly
+		trying to understand the concepts we want it to learn
+	\item \textbf{early stopping} is a method that checks the error
+		on the validation set during training, and that stops training
+		whenever the error on the validation set starts increasing.
+		The increase of validation error will usually mean that the
+		network has started overfitting the training data.
+\end{itemize}
+
+Finally, when we have minimised the error on the validation, we use 
+a \textbf{test set}. This set contains new pairs of feature vectors and their
+targets that are neither in the training set nor the validation set. Using
+a test set helps avoiding overfitting the \textit{hyperparameters} of the model.
+Indeed, finding the hyperparameters that minimise the error on the validation
+set is a sort of overfitting; and running the model on completely unseen
+data from the test set gives a true estimation of the generalisation performance
+of our model. Once this estimation has been made, we cannot tune the model
+any further (or we would have to use a different test set).
 
 \section{Recurrent neural networks}
 There is one limitation to feedforward neural networks which can be particulary
@@ -304,7 +347,6 @@ is to unroll them for a given, finite amount of time steps (see
 Figure~\ref{fig:rnn}b).  The error signal can then be computed
 for the output value at each time step, and backpropagated through all the
 previous input values that affected its computing.\\
-
 \begin{figure}[]
 	\centering
 	\subfloat[][A recurrent connection]{\qquad
@@ -316,12 +358,55 @@ previous input values that affected its computing.\\
 	\label{fig:rnn}
 \end{figure}
 
+
+Backpropagation through time \cite{bptt} works conceptually in the same way
+as normal backpropagation. For a sequence of 3 steps such as the one shown
+on Figure~\ref{fig:bptt}, we consider that the network has 3 layers. 
+One key difference with standard backpropagation is that the weights
+between each layer are actually the same since we only unrolled the network.
+The equations of backpropagation have to be slightly adapted to perform
+gradient descent on the recurrent weights. The partial derivative of the
+loss function at $t=3$ with respect to the recurrent weights is:
+\begin{equation}
+	\frac{\delta\mathcal{L}_3}{\delta W_{hh}} = 
+\frac{\delta\mathcal{L}_3}{\delta a_o}
+\frac{\delta a_o}{\delta net_o}
+\frac{\delta net_o}{\delta W_{hh}}
+	\label{eq:chainrule_bptt}
+\end{equation}
+but this time, $net_o$ depends on $net_{h_3}$ which in turn depends on $W_{hh}$, so
+when we take its derivative with respect to $W_{hh}$, we cannot take it as
+a constant. The equation has to be unfolded like this:
+\begin{equation}
+	\frac{\delta\mathcal{L}_3}{\delta W_{hh}} = 
+	\sum\limits_{k=0}^2
+\frac{\delta\mathcal{L}_3}{\delta a_o}
+\frac{\delta a_o}{\delta net_o}
+\frac{\delta net_o}{\delta net_{h_k}}
+	\frac{\delta net_{h_k}}{\delta W_{hh}}
+	\label{eq:chainrule_bptt}
+\end{equation}
+
+Unrolled recurrent neural networks are just deep neural networks, and the
+more they are unrolled, the deeper they get, so they also suffer from
+the vanishing or exploding gradients problem \cite{vanishing_gradient_rnn}.
+\todo{maybe explain}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/bptt.eps}
+	\caption{Backpropagation through time}
+	\label{fig:bptt}
+\end{figure}
+
 \subsection{Long Short-Term Memory (LSTM)}
 One major issue encountered when using recurrent neural networks is that they
 are famous for being unstable. Very often, at some point, training will diverge
+(meaning that some gradients will either explode or vanish)
 and will never reach a satisfying optimum. Several solutions have been presented
-to counter this unstability, one of them being Long Short-Term Memory (LSTM)
-cells \cite{lstm}. \\
+to counter this unstability such as Long Short-Term Memory (LSTM)
+cells \cite{lstm}, which we will explain and use in this work, or Gated
+Recurrent Units (GRUs) \cite{grus}. \\
 
 \begin{figure}
 	\centering
@@ -335,8 +420,13 @@ cells \cite{lstm}. \\
 Instead of carrying to the next timestep only the hidden state (which is also
 the output of the cell), LSTMs also carry what is called the
 \textit{memory cell} $c_t$ which isn't used as output. This memory cell is 
-able to handle longer term memory management by using \textit{gates} to 
-access and modify it. All gates receive a concatenation of the previous hidden
+able to handle longer term memory management by using \textit{gates}, which
+are rather simple mutliplicative connections, to 
+access and modify it. The idea of using gates is to allow the network
+to learn to explicitly control its memory by erasing, adding or updating the
+information that is in its memory cell.
+
+All gates receive a concatenation of the previous hidden
 state $h_{t-1}$ and the new input vector $x_t$. They feed this input through a
 sigmoid layer (\framebox{sig})to an element-wise multiplication. There are 
 three in total, as they can be seen from left to right on Figure~\ref{fig:lstm}:
@@ -350,7 +440,11 @@ three in total, as they can be seen from left to right on Figure~\ref{fig:lstm}:
 	\item the \textit{output gate} is the last one and decides what parts
 		of the memory cell make it to the output.
 \end{enumerate}
+A deeper analysis of LSTMs and an insight into their behaviour has been
+provided by Karpathy et al. \cite{lstm-analysis}
+\todo{maybe more?}
 
 \todo{universal function approximators}
+\todo{conclusion}
 
 
