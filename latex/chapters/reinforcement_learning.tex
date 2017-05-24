@@ -9,23 +9,29 @@
 
 
 \section{The reinforcement learning problem}
-A reinforcement learning setting sees two main components interact : the agent
-(an entity performing actions)
-and the environment. The environment can be in several states which the agent
-can observe (for example in the CartPole problem : the cart can be in several 
-positions and have different velocities, and the pole has similar 
-characteristics). In some problems, the agent might not be able to observe the
-full state of the environment.\\
-
+A reinforcement learning setting, as defined by Sutton and Barto \cite{suttonbarto}
+sees two main components interact : the
+\textbf{agent} (an entity performing actions) and the \textbf{environment}. 
+The environment can be in several states which the agent
+can observe. In some problems, the agent might not be able to observe the
+full state of the environment (making the problem a partially observable one).  
 The agent chooses actions based on its knowledge of the state of the
 environment. These actions might (and often do) alter the state of the
-environment, but will also generate a reward. In the CartPole problem, the 
-reward is +1 every tick the pole is above a certain angle, 0 otherwise. The
+environment, but will also generate a \textbf{reward}.  The
 goal of the agent is to maximise the obtained reward.\\
 
 With this simple setting, of which a diagram is shown in Figure~\ref{fig:rl},
 we can design algorithms that can be trained to solve a huge variety of tasks
-without ever having to include task-specific logic to the algorithm.
+without ever having to include task-specific logic to the algorithm.\\
+
+For example in the CartPole problem : the cart can be in several 
+positions and have different velocities, and the pole has similar 
+characteristics; the values of these characteristics constitute the state
+of the environment. The agent has two actions at its disposal : nudge
+the cart to the left, and nudge the cart to the right. 
+The reward of the CartPole environment is +1 every timestep the pole is above a 
+certain angle and the cart is within a certain range on the rail, 0 otherwise.
+
 
 \begin{figure}[]
 	\centering
@@ -47,30 +53,31 @@ Decision Process (MDP) \index{MDP} characterised by :
 		$r(s, a, s') = \mathbb{E}
 		 [r_{t+1} \mid s_t = s, a_t = a, s_{t+1} = s']$
 \end{itemize}
-For the rest of this paper, we will consider that the transition function is
-deterministic.\\
 
 The goal of reinforcement learning is for the agent to select, in any state it
 can be in, the action that will lead it to the highest expected reward :
 
 \begin{equation}
 \label{eq:discounted_reward}
-R_t = \mathbb{E}[r] = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
+R_t = \mathbb{E}[r|\pi] = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2}^2 + ... =
  \sum\limits_{i=0}^\infty \gamma^i r_{t+i}
 \end{equation}
 
-\noindent with the discount factor \index{discount factor} $\gamma \in [0, 1[$.
+\noindent with $\pi$ the policy (see Section~\ref{sec:policy}) and 
+the discount factor \index{discount factor} $\gamma \in [0, 1[$.
 The discount factor allows one to tune the agent's behaviour on the
 short-term/long-term spectrum. A discount factor $\gamma=0$ would mean that the
 agent maximises its expected reward for the next transition only whereas a
 discount factor close to one will favour behaviour that maximises long-term
 reward, even if one action leads to a poor reward at first.\\
+\todo{audrey's comment}
 
 \subsection{Policy}
+\label{sec:policy}
 \index{policy}
 The agent uses a policy $\pi(a \mid s)$ which describes a probability
 distribution over the action set $\mathcal{A}$, determining the probability of
-selecting action each action $a_i in \mathcal{A}$ once it is
+selecting action each action $a_i \in \mathcal{A}$ once it is
 in a certain state $s_i$. This policy is \textbf{deterministic} if and only if:
 \begin{equation}
 \forall\, s \in \mathcal{S},\; \exists\, a \in \mathcal{A} : \pi(a \mid s) = 1
@@ -118,8 +125,43 @@ to try to maximise reward is not trivial. Exploring could make training slower
 or affect the reward if our model of the environment is correct, but it is 
 needed to increase the probability that we have indeed a correct model. This
 tradeoff is called the exploration/exploitation tradeoff. \index{exploration}
-\index{exploitation}
+\index{exploitation}\\
 
+Sutton and Barto \cite{suttonbarto} propose two
+simple ways to tackle this tradeoff : $\epsilon$-greedy and softmax selection.
+Both methods fall within the denomination of Action-Value methods, meaning
+that a value will be attributed to each action based on how well it did
+in the past. Suppose action $a$ has been chosen $K_a$ times before timestep
+$t$, and the agent has received rewards $r_1$, $r_2$,... while playing it. 
+The value of action $a$ is:
+$$Q_t(a) = \frac{r_1 + r_2 + ... + r_{K_a}}{K_a} $$
+
+\subsubsection{$\epsilon$-greedy}
+This strategy keeps an average of the reward of each earm and chooses the next
+action the following way:
+\begin{equation}\begin{cases}
+	\text{$a$ with $\max\limits_aQ_t(a)$} & \text{with probability } (1-\epsilon) 
+	\\
+	\text{random $a$} & \text{otherwise}
+\end{cases}
+\label{eq:egreedy}
+\end{equation}
+A high $\epsilon$ forces the agent to explore more, while a low $\epsilon$
+allows for more exploitation of the agent's knowledge of the problem. 
+$\epsilon$ is a hyperparameter of the agent, meaning that it will have to
+be chosen by the designer depending on the problem and its parameters to 
+strike an optimal balance between exploitation and exploration.
+
+\subsubsection{Softmax selection}
+Instead of selecting the best action with a given probability, the 
+softmax selection method defines a distribution probability over the whole
+action space $\mathcal{A}$. This is usually done by using a Boltzmann distribution
+(also called a Gibbs distribution):
+$$ \frac{e^{Q_t(a)/\tau}}{\sum_{i=1}^{n}e^{Q_t(i)/\tau}} $$
+which defines the probability of selection for each action. $\tau$ is called
+the \textit{temperature} parameter. A high temperature smooths the distribution,
+making all actions more equally likely to be selected, and a low temperature
+will tend to behave more like greedy action selection.
 
 \section{Neural networks for reinforcement learning}
 As hinted at previously, neural networks are powerful function approximators and
@@ -131,6 +173,36 @@ estimated achievable discounted reward from those states.
 
 \subsection{Policy gradient methods}
 Policy gradient methods are rather straightforward ways of learning to solve a task.
+They assume that the policy is an end-to-end block of differentiable computation
+(this could be a neural network, but other function approximators work too):
+$$\pi(a \mid s)$$
+This means that $\pi$ takes as input the state, and outputs a probability
+distribution over the whole action set $\mathcal{A}$.\\
+
+If we just received a good reward from the environment after choosing an action
+$a$ from state $s$
+with respect to the policy $\pi$, we could directly change the policy to 
+increase the probability of selecting $a$ when we are in state $s$. The
+experienced reader might have noticed that this process is very similar to
+how we performed gradient descent to improve a classifier neural network. 
+Indeed, supervised learning is about increasing the probability of the correct
+class when given a sample (or decreasing the probability of the wrongly
+predicted class). Similarly to how class labels are backpropagated through
+the differentiable function, we can backpropagate rewards.
+Figure~\ref{fig:supervised_vs_pg} show the process similarity between 
+supervised learning and policy gradient methods.\\
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/supervised_vs_pg.eps}
+	\caption{The policy gradients process, and its similarity to
+	the training process of supervised learning. Text in parentheses
+	represents the supervised learning equivalent of the vectors 
+	involved in policy gradients.}
+	\label{fig:supervised_vs_pg}
+\end{figure}
+
 Let us assume that the
 policy is defined by a neural network of which the input layer is set to 
 receive an observation of the state of the environment and the output layer
@@ -151,12 +223,22 @@ by defining directly the gradient as a parameters update rule.\\
 Let us suppose that the agent is in a situation where it can perform two
 actions, and it has received a reward of +5 after choosing action 2
 sampled out of its policy $\pi(s) = [0.1, 0.9]$. We can directly use the
-reward signal as a gradient to update the network. Indeed, setting gradients
-to $[0, 5]$ (because a +5 reward was generated by action 2) and multiplying it 
-to the gradient of the policy $\nabla \pi(a \mid s)$ will make the network
+reward signal as a scaler for the gradient to update the network. Indeed,
+multiplying the gradient of the policy $\nabla \pi(a \mid s)$ by 
+$[0, 5]$ (because a +5 reward was generated by action 2) will make the network
 learn what actions to perform under certain states by directly increasing the
 probability of playing actions which receive a positive reward, and by
 decreasing the probability of actions which receive a negative reward.\\
+
+We can prove mathematically that multiplying the gradient of the policy
+equates to the gradient of the expected reward from state $x$:
+\begin{align*}
+	\nabla \mathbb{E}_x[r(x)] &= \nabla \sum\limits_x\pi(x)r(x)\\
+	&=  \sum\limits_x \nabla\pi(x)r(x)\\
+	&=  \sum\limits_x \pi(x)\frac{\nabla\pi(x)}{\pi(x)}r(x)\\
+	&=  \sum\limits_x \pi(x)\nabla\log(\pi(x))r(x)\\
+	&=  \mathbb{E}_x[r(x)\nabla\log(\pi(x))]\\
+\end{align*}
 
 The method as presented still presents an issue in the sense that it only takes
 into account immediate reward, but we may want to maximise long-term reward.

@@ -26,7 +26,9 @@ $$ \begin{cases} P(r \mid \text{arm}_1) = p_b \\
 P(r \mid \text{arm}_2) = 1 - p_b  \end{cases} $$
 where $P(r \mid \text{arm}_1)$ is the probability of arm 1 to generate a reward
 and $0 \leq p_b \leq 1$ is the parameter of the bandit problem. One way to
-solve this problem would be to use the $\epsilon$-greedy strategy. This
+solve this problem would be to use the $\epsilon$-greedy strategy. 
+\todo{ref instead of explaining?}
+This
 strategy keeps an average of the reward of each earm and chooses the next
 action the following way:
 $$ \text{choose} \begin{cases}
