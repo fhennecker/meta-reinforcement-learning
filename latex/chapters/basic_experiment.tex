@@ -193,7 +193,7 @@ with longer trials containing more episodes.\\
 	\subfloat[][Trials of 2 episodes]{
 		\includegraphics[width=0.49\linewidth]{fig/20perms_distrib_2ep.pdf}}
 	\caption{Distributions of the total reward accumulated during the last
-	episode of trials. A 180 trials are played both in the case of
+	episode of trials. 180 trials are played both in the case of
 	single-episode trials and dual-episode trials. This shows the
 	distribution of rewards obtained after playing 10 times each
 	permutation of the \textbf{training} set. No action inversion is performed.}
@@ -221,6 +221,13 @@ tremendously magnified. For seen permutations
 permutations, this number climbs to about 70 out of 180. The single-episode
 agent succeeds shy of 100 trials out of 180 where the dual-episode agent
 comes close to 170 out of 180.\\
+
+The reader might have noticed that the absolute performance for the agent
+playing dual-episode trials is better when the problem is harder (with
+inverted actions) as it succeeds close to 170 trials out of 180 whereas
+for the simpler problem (without inverted actions), it only succeeds for
+around 120 trials out of 180. We can only speculate as to why this result
+occurs.\todo{better}\\
 
 \begin{figure}
 	\centering
@@ -260,7 +267,6 @@ harder the problem is, the higher the number of successes will be. Indeed,
 the performance of agents playing problems with inverted actions is 
 significantly higher than the performance of agents playing problems without.
 
-\todo{why these weird results?}
 
 \subsubsection{Conclusion}
 We have seen that applying meta-learning to a problem such as CartPole yields

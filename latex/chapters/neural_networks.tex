@@ -165,9 +165,6 @@ minimise the loss function, we are confronted with an optimisation problem.
 
 \subsubsection{Backpropagation}
 \index{backpropagation}
-We will only summarise backpropagation in this section as explaining it in
-full is out of the scope of this paper.
-\todo{remove}
 The problem at hand is indeed an optimisation problem with the following
 parameters:
 \begin{itemize}
@@ -288,9 +285,17 @@ the validation set than on the training set, we know that it has overfit
 the training data. We use the validation set to test different 
 values of hyperparameters (number of layers, size of layers, learning rate,...),
 and we choose the combination of hyperparameters and overfitting avoidance
-techniques that minimise the error on the validation set.\\
+techniques that minimise the error on the validation set. An illustration
+of overfitting is shown on Figure~\ref{fig:overfitting}.\\
 
-\todo{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/overfitting.pdf}
+	\caption{An illustration of underfitting (left) and overfitting (right).
+	The MSE metric shows the error on a validation set for each learned
+	polynom.}
+	\label{fig:overfitting}
+\end{figure}
 
 There are several ways of avoiding overfitting, of which some are:
 \begin{itemize}
@@ -444,6 +449,12 @@ provided by Karpathy et al. \cite{lstm-analysis}
 \todo{maybe more?}
 
 \todo{universal function approximators}
-\todo{conclusion}
 
+\subsubsection{Summary}
+Neural networks are very useful tools that, when designed and trained the right way,
+can transform their input to any desired output, allowing one to 
+can approximate any function.\\
 
+However useful they are, we have seen that they are not as tame as one would
+wish. Indeed, as they get deeper, their likelihood of diverging or
+overfitting, so we must be careful when using them.
