@@ -9,7 +9,7 @@
 
 
 \section{The reinforcement learning problem}
-A reinforcement learning setting, as defined by Sutton and Barto \cite{suttonbarto}
+A reinforcement learning setting, as defined in Sutton and Barto \cite{suttonbarto}
 sees two main components interact : the
 \textbf{agent} (an entity performing actions) and the \textbf{environment}. 
 The environment can be in several states which the agent
@@ -29,8 +29,9 @@ positions and have different velocities, and the pole has similar
 characteristics; the values of these characteristics constitute the state
 of the environment. The agent has two actions at its disposal : nudge
 the cart to the left, and nudge the cart to the right. 
-The reward of the CartPole environment is +1 every timestep the pole is above a 
-certain angle and the cart is within a certain range on the rail, 0 otherwise.
+The reward of the CartPole environment is +1 every timestep the pole is balanced
+within a given angle 
+and the cart is within a certain range on the rail, 0 otherwise.
 
 
 \begin{figure}[]
@@ -75,10 +76,13 @@ by the designer as a hyperparameter for the whole length of the training.\\
 \subsection{Policy}
 \label{sec:policy}
 \index{policy}
-The agent uses a policy $\pi(a \mid s)$ which describes a probability
+The agent uses a policy $\pi(a \mid s)$ to choose which action it is
+going to play next. The policy describes a probability
 distribution over the action set $\mathcal{A}$, determining the probability of
-selecting action each action $a_i \in \mathcal{A}$ once it is
-in a certain state $s_i$. This policy is \textbf{deterministic} if and only if:
+selecting each action $a_i \in \mathcal{A}$ once it is
+in a certain state $s_i$.\\
+
+We can call the policy \textbf{deterministic} if and only if:
 \begin{equation}
 \forall\, s \in \mathcal{S},\; \exists\, a \in \mathcal{A} : \pi(a \mid s) = 1
 \end{equation}
@@ -114,8 +118,8 @@ the structure and parameters of a problem in order to maximise reward.\\
 
 One could imagine a simple strategy like the following : play each arm 10 times,
 then always play the arm with the highest average reward. This policy is
-deterministic, and yields either $ \pi(a_1) = 1$ and $\pi(a_2) = 0$ or
-$\pi(a_1) = 0$ and $\pi(a_2) = 1$. This could work in
+deterministic, and yields either ($ \pi(a_1) = 1$ and $\pi(a_2) = 0$) or
+($\pi(a_1) = 0$ and $\pi(a_2) = 1$). This could work in
 our case, but might fail in cases where the distributions are much closer
 (e.g. 0.45 and 0.55). What if the reward was sampled out of overlapping normal
 distributions?\\
@@ -180,16 +184,17 @@ Policy gradient methods are rather straightforward ways of learning to solve a t
 They assume that the policy is an end-to-end block of differentiable computation
 (this could be a neural network, but other function approximators work too):
 $$\pi(a \mid s)$$
-This means that $\pi$ takes as input the state, and outputs a probability
-distribution over the whole action set $\mathcal{A}$.\\
+This means that the policy $\pi$ takes as input the state, and outputs a 
+probability distribution over the whole action set $\mathcal{A}$.\\
 
 If we just received a good reward from the environment after choosing an action
 $a$ from state $s$
 with respect to the policy $\pi$, we could directly change the policy to 
 increase the probability of selecting $a$ when we are in state $s$. The
 experienced reader might have noticed that this process is very similar to
-how we performed gradient descent to improve a classifier neural network. 
-Indeed, supervised learning is about increasing the probability of the correct
+how we performed gradient descent to improve a classifier neural network in
+the backpropagation section (\ref{sec:backprop}).
+Indeed, classification is about increasing the probability of the correct
 class when given a sample (or decreasing the probability of the wrongly
 predicted class). Similarly to how class labels are backpropagated through
 the differentiable function, we can backpropagate rewards.
@@ -224,7 +229,7 @@ update the network to find the best policy. This is done by defining a loss
 function of which the gradient will be propagated back into the network, or
 by defining directly the gradient as a parameters update rule.\\
 
-Let us suppose that the agent is in a situation where it can perform two
+Let us suppose that the agent is in an environment where it can perform two
 actions, and it has received a reward of +5 after choosing action 2
 sampled out of its policy $\pi(s) = [0.1, 0.9]$. We can directly use the
 reward signal as a scaler for the gradient to update the network. Indeed,
@@ -245,7 +250,7 @@ equates to the gradient of the expected reward from state $x$:
 \end{align*}
 
 The method as presented still presents an issue in the sense that it only takes
-into account immediate reward, but we may want to maximise long-term reward.
+into account immediate reward, and we may want to maximise long-term reward.
 Let $R_t$, the discounted future reward at time step $t$ (see equation 
 \ref{eq:discounted_reward}), be the metric
 that we want to maximise. In a policy gradients method, we will update the
@@ -293,8 +298,8 @@ compute:
 $$V^\pi(s_{o-2}) = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} = 0+ 0 + 0.9^2 \times 100 = 81$$
 
 The reader might have noticed that there is a simpler way to estimate values
-than by unrolling the agent's full experience until it gets a reward. Indeed
-we can, and we can use the Bellman equation to rewrite our estimation using
+than by unrolling the agent's full experience until it gets a reward. 
+We can indeed use a Bellman equation to rewrite our estimation using
 the values of adjacent states only by iterating on our current estimates:
 \begin{equation}
 V_{k+1}^\pi(s) = R_t = \mathbb{E}
@@ -302,10 +307,10 @@ V_{k+1}^\pi(s) = R_t = \mathbb{E}
    \mathbb{E}\left[ r_t + \gamma V_k^\pi(s')\right]
 \label{eq:vupdate}
 \end{equation}
-where $s'$ is the state of highest value that can be reached from $s$. We could
-rewrite this equation as the following:
-$$ V_{k+1}^\pi(s) = \max\limits_a \sum\limits_{s'} p(s\mid s,a)[r(s,a,s') + 
-\gamma V_{k+1}\pi(s')]$$
+where $s'$ is the state of highest value that can be reached from $s$ and $k$
+is the iteration number. We could rewrite this equation as the following:
+$$ V_{k+1}^\pi(s) = \max\limits_a \sum\limits_{s'} p(s\mid s,a)\left[r(s,a,s') + 
+\gamma V_{k+1}\pi(s')\right]$$
 
 Iterating over estimates means that we start off with a nonoptimal value
 function. It would theoretically take an infinite amount of iterations to
@@ -346,7 +351,7 @@ can be defined with the following :
 \subsubsection{Value networks in real life : DQN}
 Estimating values using neural networks has an enormous advantage over using
 tables of values. Using tables becomes intractable as the size of the state
-space (or action space in the context of Q-values); worse, they become
+space increases (or action space in the context of Q-values); worse, they become
 unusable if the state space becomes continuous, unless we discretise it,
 which might cause unwanted artifacts.\\
 
@@ -377,10 +382,11 @@ description of such networks as they won't be needed in this work.
 We can call policy gradient methods "actor-only" methods as the methods
 only choose actions without evaluating them \textit{per se}. On the other
 hand, value-based methods can be called "critic-only" methods as they
-evaluate possible actions and states.\\
+evaluate possible actions and states but do not provide the agent
+with a choice of action.\\
 
 There is a third category of methods which mixes both approaches. 
-Actor-critic methods have both an \textit{actor} (the policy) and a
+Actor-critic methods \cite{suttonbarto} have both an \textit{actor} (the policy) and a
 \textit{critic} (value functions). The actor performs the actions, and the 
 critic updates the policy. One way to update the policy using a critic is to
 scale the policy gradient using our current estimate of the V function:
@@ -391,7 +397,7 @@ scale the policy gradient using our current estimate of the V function:
 This way, the policy will be updated according to how wrong the critic was.
 The value $R_t - V(s_t)$ is called the \textbf{advantage} \index{advantage}
 because it expresses how much better (or worse) the reward was compared to 
-what was estimated.
+what was estimated \cite{advantage, a3c}.
 
 
 \subsubsection{The A2C algorithm}
@@ -401,7 +407,7 @@ We now have all the cards in our hand to understand the A2C
 A2C consists of a neural network
 of which the input is the state $s_t$, and which outputs both a value function
 $V(s_t)$ and a policy $\pi(s_t)$ (see Figure~\ref{fig:a2c}). These outputs
-respectively use the updates rules described in equations \ref{eq:v_update_rule}
+respectively use the update rules described in equations \ref{eq:v_update_rule}
 and \ref{eq:adv_update_rule}. The first loss function computes the error
 related to the policy output:
 $$ \mathcal{L}_p = \pi(a_t \mid s_t) (R_t - V(s_t))$$
@@ -456,8 +462,8 @@ network according to the agent's experience.
 
 \subsubsection{Summary}
 Reinforcement learning is the study of the behaviour of an agent situated in
-an environment generating rewards for the agent. Many techniques exist
-to allow the agent to learn to perform well in many environments, and 
+an environment generating rewards for the agent. Many existing techniques
+allow the agent to learn to perform well in many environments, and 
 using neural networks to solve reinforcement learning problems has shown
 to be very powerful.\\
 

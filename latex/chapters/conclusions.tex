@@ -1,8 +1,8 @@
 \chapter{Conclusions}
 \begin{quotation}
-\noindent ``\emph{quote}''
-	\todo{quote}
-\begin{flushright}\textbf{author}\end{flushright}
+\noindent ``\emph{By far the greatest danger of artificial intelligence
+	is that people conclude too early that they understand it.}''
+\begin{flushright}\textbf{Eliezer Yudkowsky}\end{flushright}
 \end{quotation}
 \vspace*{0.5cm}
 
@@ -22,7 +22,8 @@ in meta-learning dependent 2-armed bandit problems. While we achieved the
 same results as the two seminal papers cited above, we extended the results
 discussion to the dynamics of meta-learning such a problem, showing how
 the meta-learning agent develops its strategy to learn a bandit problem faster
-and faster.\\
+and faster. We also studied its generalisation capability for the whole
+range of parameters of this problem.\\
 
 Meta-learning was extended to a new set of experiments based on the CartPole
 environment. We designed a distribution of CartPole problems by shuffling
@@ -57,7 +58,7 @@ We have also tried to understand how a meta-learning agent handled playing
 more episodes than what it had been trained for.\\
 
 This deep look into the workings of our agent and its reaction to different
-hyperparameters helped us understanding an inherent flaw in the reward structure
+hyperparameters helped us understand an inherent flaw in the reward structure
 of the CartPole problem forbidding the agent to perform at its best for
 as many episodes as possible, as soon as it could. Indeed, a continuous
 stream of rewards of +1 at each timestep drowned the information of "lost

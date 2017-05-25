@@ -61,7 +61,7 @@ by Wang et al. \\
 	\caption{A classic training sequence to learn a bandit problem. One
 	manually designs a strategy which inspects the reward obtained at 
 	the end of an episode and evaluates accordingly the performance of the action
-	taken. The strategy then updates the policy.}
+	taken. The strategy then updates the policy inbetween episodes.}
 	\label{fig:normal_bandit_training}
 \end{figure}
 
@@ -150,7 +150,7 @@ carries a hidden state from the first episode in the trial to the last.\\
 
 The general setup presented by Wang et al. uses a recurrent neural network of
 which the weights, once trained "slowly" over several trials of multiple
-episodes, will encode the "fast" training policy.
+episodes, will encode the "fast" learning policy.
 Figure \ref{fig:a2c_meta} shows the meta-learning A2C agent presented in Wang
 et al. \cite{learningtorl}. There are two differences to note compared to
 Figure~\ref{fig:a2c}: the first one is the recurrent connection, and the

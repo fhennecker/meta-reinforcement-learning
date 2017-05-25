@@ -17,10 +17,11 @@
 \usepackage{url}
 \usepackage{todonotes}
 \usepackage{float}
+\usepackage[font={small}, width=0.85\textwidth]{caption}
 \usepackage{subfig}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage[font={small}, width=0.85\textwidth]{caption}
+\usepackage{stackengine}
 
 \begin{document}
 
@@ -57,6 +58,37 @@
 % Dedicace page
 
 \newenvironment{vcenterpage}
+{\newpage\thispagestyle{empty} 
+\vspace*{\fill}}
+{\vspace*{\fill}\par\pagebreak}
+
+\begin{vcenterpage}
+\center{\large{\textbf{Abstract}}}\\
+\vspace*{1cm}
+
+\parbox{0.8\textwidth}{
+	There have been incredible advances in the field of reinforcement
+	learning in recent years. Computers keep getting closer to the
+	human level benchmark on many tasks, sometimes even outperforming 
+	humans at famously complicated tasks such as playing the game of Go 
+	or driving cars under certain circumstances. Although many of
+	these breakthroughs are attributed to machine learning, paradoxically,
+	very few attempts have been made to teach a machine to learn, as opposed
+	to teaching a machine to solve a task. This work reviews the
+	state of the art in meta reinforcement learning, which is the art
+	of teaching a machine to learn. An implementation is made available,
+	along with experiments from the literature and their results. The
+	main contributions of this work are the application and analysis of 
+	meta reinforcement learning to a new class of continuous problems 
+	derived from the CartPole environment, identifying key dynamics and
+	pathologies related to such problems and proposing a simple solution
+	to enable meta learning on problems of this type. Experiments showing
+	the positive effect of meta reinforcement learning on unseen tasks
+	are presented.
+}
+\end{vcenterpage}
+
+
 {\newpage\thispagestyle{empty} 
 \vspace*{\fill}}
 {\vspace*{\fill}\par\pagebreak}
@@ -105,14 +137,16 @@ greatly helping me adjust the scope of some sections, but also pointing out
 unclear or missing parts.\\
 
 My girlfriend also had the chance to advise me on the first drafts of this 
-thesis, but she had to bear the burden of listening to my rambles at
-the most barren points of my research too. Long days of trying to make something
+thesis, and her strong technical background, particularly in maths, helped me
+understand which parts of this work needed more work. In addition to this, she 
+had to bear the burden of listening to my rambles at
+the most barren points of my research. Long days of trying to make something
 work without success would have probably discouraged me if she wasn't there
 to support me.\\
 
 I could not talk about complaining without mentioning my friends who lived the
 same experience at the same time. Such an experience is much easier when not
-alone, and exchanging tips and ideas while at the same time lauging about
+alone, and exchanging tips and ideas while at the same time laughing about
 our fates greatly helped me throughout the process.\\
 
 Last, but certainly not least, I would like to thank my professors at the

@@ -41,7 +41,7 @@ for ways to counter it.
 	\subfloat[][Training over 5 episodes]{
 		\includegraphics[width=0.9\linewidth]{fig/20permsLR5ep_training.pdf}}
 	\caption{Episode-wise reward evolution when training on trials of 
-	different lenghts}
+	different lengths}
 	\label{fig:20permsLR_training}
 \end{figure}
 
@@ -52,7 +52,7 @@ for ways to counter it.
 	\subfloat[][5 episodes]{
 		\includegraphics[width=0.4\linewidth]{fig/20permsLR5ep_rewards.pdf}}
 	\caption{Testing performance of agents trained on trials of different
-	lenghts. Several runs are displayed in blue on the same plot, and their
+	lengths. Several runs are displayed in blue on the same plot, and their
 	average is shown as a red dashed line.}
 	\label{fig:20permsLR_rewards}
 \end{figure}
@@ -111,7 +111,7 @@ used to accelerate training. This subset is shown in table~\ref{tab:3perms}.
 	\centering
 	\caption{State permutations used for training and testing}
 	\label{tab:3perms}
-	\subfloat[Training distribution]{
+	\stackunder[5pt]{\small (a) Training distribution}{
 		\bgroup
 		\def\arraystretch{1.5}
 		\begin{tabular}{c|c|c}
@@ -119,7 +119,7 @@ used to accelerate training. This subset is shown in table~\ref{tab:3perms}.
 		\end{tabular}
 		\egroup
 	}
-	\subfloat[Testing distribution]{
+	\stackunder[5pt]{\small (b) Testing distribution}{
 		\quad\quad
 		\bgroup
 		\def\arraystretch{1.5}
@@ -219,17 +219,16 @@ a gain in performance for the last episode always happens at the expense of
 the reward of previous episodes. We make the hypothesis that the agent
 "counts" the \textbf{timesteps} it takes to reach the last episode. This yields good
 performance when the number of timesteps prior to the last episode is stable, 
-meaning that all previous episodes have either fail quickly or succeed. Since
+meaning that all previous episodes have either failed quickly or succeeded. Since
 the former solution is the simplest to achieve, and it is supported by the 
 drop of reward in the first episodes shown on 
 Figure~\ref{fig:varied_episode_number}, we believe that is what the agent does.
 
 
 \section{Testing performance after the training horizon}
-So far, we have tested our agent only within the limits of what it has been
-trained. What happens if we leave it running for more episodes than what it
-has been trained for?
-
+So far, we have tested our agent only within the limits of its training.
+What happens if we leave it running for more episodes than what it
+has been trained for?\\
 
 We have trained an agent on the 3 permutations listed in table~\ref{tab:3perms}
 without inverted actions, over trials of 5 episodes.
