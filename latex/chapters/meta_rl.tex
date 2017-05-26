@@ -133,19 +133,6 @@ carries a hidden state from the first episode in the trial to the last.\\
 	\label{fig:a2c_meta}
 \end{figure}
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.6\linewidth]{fig/meta_rl_timestep.eps}
-	\caption{An unrolled timestep in the meta-RL training setting. At each
-	timestep, the agent receives an observation of the state of the
-	environment as well as the previous action taken, the associated reward,
-	and the termination flag. It also receives its previous hidden state
-	if and only if the previous timestep was part of the same trial (this
-	could still mean that the last timestep was from a different episode
-	which just terminated)}
-	\label{fig:meta_rl_timestep}
-\end{figure}
-
 
 
 The general setup presented by Wang et al. uses a recurrent neural network of
@@ -158,6 +145,20 @@ second one is the set of values we input to the agent at each time step. In
 addition to the state of the environment, we add the previous action, 
 previous reward and a termination flag which is set to 1 when an episode
 has reached a terminal state; 0 otherwise.\\
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\linewidth]{fig/meta_rl_timestep.eps}
+	\caption{An unrolled timestep in the meta-RL training setting. At each
+	timestep, the agent receives an observation of the state of the
+	environment as well as the previous action taken, the associated reward,
+	and the termination flag. It also receives its previous hidden state
+	if and only if the previous timestep was part of the same trial (this
+	could still mean that the last timestep was from a different episode
+	which just terminated)}
+	\label{fig:meta_rl_timestep}
+\end{figure}
+
 
 It is important to emphasize on the fact that the agent passes on its hidden
 state between different episodes of the same trial (and if episodes last for
@@ -257,9 +258,9 @@ expectation is 80, and for trials using bandits with $p_b \in [0.1, 0.9]$,
 the total reward expectation is 90. Scoring an average trial reward between
 80 and 85 looks very close to optimal, if not fully optimal.\\
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{fig/bandit_reward.pdf}
+	\includegraphics[width=0.75\linewidth]{fig/bandit_reward.pdf}
 	\caption{Evolution of the smoothed reward of trials during training on
 	dependent bandit problems}
 	\label{fig:bandit_reward}
@@ -270,6 +271,23 @@ on Figure~\ref{fig:bandit_optimality}, and especially on
 Figure~\ref{fig:bandit_optimality}b, we see that the agent evolves from playing
 randomly each arm to testing both arms for just a few episodes at the start
 of the trial to then always play what it judges is the best episode.\\
+
+\begin{figure}[H]
+	\centering
+	\subfloat[][Pulled arm]{
+		\includegraphics[width=0.49\linewidth]{fig/bandit_pulls.png}}
+	\subfloat[][Optimality of the pulled arm]{
+		\includegraphics[width=0.49\linewidth]{fig/bandit_optimality.png}}
+	\caption{Insight into the evolution of which arms get pulled and 
+	whether they are optimal during training. On the left, a black dot
+	represents the fact that arm \#1 has been pulled and a white dot
+	represents the fact that arm \#2 has been pulled. On the right, a white
+	dot signifies that the best arm has been pulled. This figure shows
+	that after a bit of training, the agent learns to quickly identify
+	which arm is the optimal arm and pulls that arm only after only 
+	a few episodes.}
+	\label{fig:bandit_optimality}
+\end{figure}
 
 We should emphasize on the importance of these results. If we had used the 
 $\epsilon$-greedy method as is, the difference in performance would be 
@@ -293,23 +311,6 @@ Furthermore, both Wang et al. \cite{learningtorl} and Duan et al.
 agent matches (or outperforms) the best hand-designed strategies such as 
 UCB and Gittins.\\
 
-\begin{figure}
-	\centering
-	\subfloat[][Pulled arm]{
-		\includegraphics[width=0.49\linewidth]{fig/bandit_pulls.png}}
-	\subfloat[][Optimality of the pulled arm]{
-		\includegraphics[width=0.49\linewidth]{fig/bandit_optimality.png}}
-	\caption{Insight into the evolution of which arms get pulled and 
-	whether they are optimal during training. On the left, a black dot
-	represents the fact that arm \#1 has been pulled and a white dot
-	represents the fact that arm \#2 has been pulled. On the right, a white
-	dot signifies that the best arm has been pulled. This figure shows
-	that after a bit of training, the agent learns to quickly identify
-	which arm is the optimal arm and pulls that arm only after only 
-	a few episodes.}
-	\label{fig:bandit_optimality}
-\end{figure}
-
 It is worth noting however that we have only been considering known and seen
 bandit problems in our discussion so far. Nevertheless, we see 
 on Figure~\ref{fig:bandit_test} that the meta-learning agent can generalise to
@@ -325,7 +326,7 @@ which arm is the optimal arm and has to explore for several episodes).\\
 The agent performs very well on unseen values of $p_b$, even harder ones which
 are closer to 0.5, even though it has only ever seen $p_b = 0.8$ and $p_b = 0.9$.
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/bandit_test.pdf}
 	\caption{Average performance of the meta-learning agent on the whole

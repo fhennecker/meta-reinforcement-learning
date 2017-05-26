@@ -11,7 +11,9 @@ three words: general function approximators. We can describe their input
 and the output desired from that input -- inbetween stands a very large amount of
 nonlinear computations of which coefficients and parameters can be tuned to
 make the network's output closer to what we want in a process called training, 
-or learning. The name "neural network"
+or learning.\\
+
+The name "neural network"
 barely hides the analogy with how human neurons function -- and although there
 are similarities to how humans learn, the analogy stays very much a conceptual
 analogy, and artificial neural networks stay orders of magnitude less complex
@@ -47,7 +49,7 @@ to "cat" and the other one to "dog". Once we have trained the network
 after distilling the input values through the network would specify the
 kind of animal the neural network thinks the measurements best fit to.\\
 
-\begin{figure}[]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\linewidth]{fig/neural_network.eps}
 	\caption{A neural network with one input layer composed of three neurons,
@@ -289,17 +291,6 @@ and we choose the combination of hyperparameters and overfitting avoidance
 techniques that minimise the error on the validation set. An illustration
 of overfitting is shown on Figure~\ref{fig:overfitting}.\\
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\linewidth]{fig/overfitting.pdf}
-	\caption{An illustration of underfitting (left) and overfitting (right).
-	The MSE metric shows the error on a validation set for each learned
-	polynomial. In green, the function we are trying to approximate, from
-	which samples are generated with a small error. In blue, our estimation of
-	the true function estimated with different degrees of polynomial
-	based on the samples.}
-	\label{fig:overfitting}
-\end{figure}
 
 There are several ways of avoiding overfitting, of which some are:
 \begin{itemize}
@@ -317,6 +308,18 @@ There are several ways of avoiding overfitting, of which some are:
 		The increase of validation error will usually mean that the
 		network has started overfitting the training data.
 \end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/overfitting.pdf}
+	\caption{An illustration of underfitting (left) and overfitting (right).
+	The MSE metric shows the error on a validation set for each learned
+	polynomial. In green, the function we are trying to approximate, from
+	which samples are generated with a small error. In blue, our estimation of
+	the true function estimated with different degrees of polynomial
+	based on the samples.}
+	\label{fig:overfitting}
+\end{figure}
 
 Finally, when we have minimised the error on the validation, we use 
 a \textbf{test set}. This set contains new pairs of feature vectors and their
@@ -348,23 +351,8 @@ layer at time $t$, but also the value of the layer at the giving end of the
 recurrent connection at time $t-1$. This allows information to \textit{live}
 throughout time steps.\\
 
-A recurrent connection, however, poses evident issues for the backpropagation
-algorithm since the depth of the neural network can become theoretically
-infinite.  A common way of training and visualising recurrent neural networks 
-is to unroll them for a given, finite amount of time steps (see 
-Figure~\ref{fig:rnn}b).  The error signal can then be computed
-for the output value at each time step, and backpropagated through all the
-previous input values that affected its computing.\\
-
-
-\begin{figure}
+\begin{figure}[H]
 	\centering
-
-	% \subfloat[][(a) A recurrent connection]{\qquad
-		% \includegraphics[width=0.1515\linewidth]{fig/recurrent_neural_network.eps}\qquad}
-	% \qquad
-	% \subfloat[][An unrolled recurrent neural network]{
-	% \includegraphics[width=0.6\linewidth]{fig/recurrent_neural_network_unrolled.eps}}
 	\stackunder[5pt]{
 		\qquad
 		\includegraphics[width=0.1515\linewidth]{fig/recurrent_neural_network.eps}\qquad}
@@ -375,6 +363,21 @@ previous input values that affected its computing.\\
 	{\small (b) An unrolled recurrent neural network}
 	\caption{Recurrent neural networks}
 	\label{fig:rnn}
+\end{figure}
+
+A recurrent connection, however, poses evident issues for the backpropagation
+algorithm since the depth of the neural network can become theoretically
+infinite.  A common way of training and visualising recurrent neural networks 
+is to unroll them for a given, finite amount of time steps (see 
+Figure~\ref{fig:rnn}b).  The error signal can then be computed
+for the output value at each time step, and backpropagated through all the
+previous input values that affected its computing.\\
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/bptt.eps}
+	\caption{Backpropagation through time}
+	\label{fig:bptt}
 \end{figure}
 
 
@@ -410,12 +413,6 @@ more they are unrolled, the deeper they get, so they also suffer from
 the vanishing or exploding gradients problem \cite{vanishing_gradient_rnn, 
 bengio94}.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\linewidth]{fig/bptt.eps}
-	\caption{Backpropagation through time}
-	\label{fig:bptt}
-\end{figure}
 
 \subsection{Long Short-Term Memory (LSTM)}
 One major issue encountered when using recurrent neural networks is that they
@@ -426,7 +423,7 @@ to counter this unstability such as Long Short-Term Memory (LSTM)
 cells \cite{lstm}, which we will explain and use in this work, or Gated
 Recurrent Units (GRUs) \cite{grus}. \\
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/lstm.eps}
 	\caption{The internals of a LSTM cell. Circles represent element-wise

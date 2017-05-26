@@ -25,6 +25,14 @@ With this simple setting, of which a diagram is shown in Figure~\ref{fig:rl},
 we can design algorithms that can be trained to solve a huge variety of tasks
 without ever having to include task-specific logic to the algorithm.\\
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\linewidth]{fig/rl.eps}
+	\caption{The setting of a reinforcement learning problem 
+		\cite{suttonbarto}}
+	\label{fig:rl}
+\end{figure}
+
 For example in the CartPole problem : the cart can be in several 
 positions and have different velocities, and the pole has similar 
 characteristics; the values of these characteristics constitute the state
@@ -35,13 +43,6 @@ within a given angle
 and the cart is within a certain range on the rail, 0 otherwise.
 
 
-\begin{figure}[]
-	\centering
-	\includegraphics[width=0.65\linewidth]{fig/rl.eps}
-	\caption{The setting of a reinforcement learning problem 
-		\cite{suttonbarto}}
-	\label{fig:rl}
-\end{figure}
 
 \subsection{Markov Decision Processes}
 A reinforcement learning problem can be formally defined as a Markov 

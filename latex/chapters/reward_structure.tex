@@ -241,7 +241,7 @@ Figure~\ref{fig:horizon_5_3perms} shows the result of this experiment.\\
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\linewidth]{fig/horizon_5_3perms.pdf}
+	\includegraphics[width=0.70\linewidth]{fig/horizon_5_3perms.pdf}
 	\caption{Testing performance over 20 episodes of an agent trained on 
 	trials of 5 episodes only. Several runs are shown in blue, their
 	average is plotted in red dashes.}
@@ -261,9 +261,9 @@ to restore the recurrent weights to their state prior to the last episode of
 the training horizon at the beginning of each episode. As 
 Figure~\ref{fig:horizon_5_3perms_restoring} shows, this solution works.\\
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{fig/horizon_5_3perms_restoring.pdf}
+	\includegraphics[width=0.70\linewidth]{fig/horizon_5_3perms_restoring.pdf}
 	\caption{Testing performance over 20 episodes of an agent trained on 
 	trials of 5 episodes only. The recurrent weights are saved prior to 
 	the 5th episode and restored prior to each episode from the 6th episode
@@ -280,7 +280,8 @@ horizon, we cannot assume there is nothing left to learn as the agent navigates
 through later episodes.\\
 
 Some remarkable feats occur when we we only increase the number of episodes the
-agent is trained on. Although it seems the agent doesn't manage to reach
+agent is trained on (see Figure~\ref{fig:horizon_10_3perms}). 
+Although it seems the agent doesn't manage to reach
 the peak performance of the agent trained on 5 episodes, a few interesting
 things to notice are:
 
@@ -302,7 +303,7 @@ the horizon further seems to confuse the agent's count, forcing it
 to distribute its high performance on several of the last episodes instead
 of only the last one.\\
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/horizon_10_3perms.pdf}
 	\caption{Testing performance over 20 episodes of an agent trained on 
