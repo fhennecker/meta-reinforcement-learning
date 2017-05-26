@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper,oneside]{book}
+\documentclass[11pt,a4paper,twoside,openright]{book}
 \usepackage[hmargin={1.25in,1.25in},vmargin={1.25in,1.25in}]{geometry}
 %%%%%%%%%%%%%%%%%%%%%%%%
 \makeindex
@@ -8,9 +8,12 @@
 \usepackage[]{amssymb} 
 \usepackage{amsmath}
 \usepackage{hyperref}
-\pagestyle{myheadings}
+% \pagestyle{myheadings}
+\pagestyle{fancy}
 \fancyhf{}
-\rhead[\leftmark]{thepage}
+\fancyhead[LE,RO]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+% \rhead[\leftmark]{thepage}
 
 \usepackage[latin1]{inputenc}
 \usepackage[english]{babel}
@@ -42,8 +45,8 @@
 \begin{center}{\LARGE Florentin Hennecker}\end{center}{\Huge \par}
 \vfill{}\vfill{}
 \begin{flushright}{\large \textbf{Supervisors :}}\hfill{}{\large Masters Thesis submitted}\\
-{\large Prof. Peter Vrancx}\hfill{}{\large in partial fulfillment of the}\\
-{\large Prof. Tom Lenaerts}
+{\large Professor Peter Vrancx}\hfill{}{\large in partial fulfillment of the}\\
+{\large Professor Tom Lenaerts}
 \hfill{}{\large requirements for the degree of}\\
 \hfill{}{\large Master in Computer Science}\end{flushright}{\large\par}
 \vfill{}\vfill{}\enlargethispage{3cm}

@@ -147,7 +147,7 @@ balance the pole. We have taught an agent how to solve one task, but we have
 not taught it to learn how to solve a task. This thesis will explore ways to 
 teach an agent how to learn to solve tasks.\\
 
-Learning to learn, as opposed to learning to solve, could open the door to a
+Learning to learn how to solve, as opposed to learning to solve, could open the door to a
 whole new level of performance from our agents. Not only could they 
 be able to generalise what they have learnt to problems that are parametrised
 differently to what they have seen, but they could also learn to perform
@@ -165,7 +165,7 @@ excellent learnable functions and have proven to work extremely well by
 pushing the state of the art in many domains.\\
 
 In part II, focus will be set on meta reinforcement learning : first we will
-have to understand what it is and its goals are; then we will explore different
+have to understand what it is and what its goals are; then we will explore different
 aspects and challenges related to it by inspecting how different experiments
 and different parameters affect its performance.\\
 
@@ -182,18 +182,18 @@ The main contributions of this work are twofold.
 \paragraph{Meta-learning state of the art.}
 A comprehensive background and state of the art are
 provided to understand the goals and stakes of meta reinforcement learning.
-We have implemented state of the art algorithms in meta-learning and made
-their implementation public. Experiments in recent papers have been
+State of the art algorithms in meta-learning have been implemented and their
+implementation has been made public. Experiments in recent papers have been
 recreated to verify and extend the results found in the literature.
 
-\paragraph{Study of meta-learning applied to a new setting.} We apply meta-learning
-to a distribution of tasks derived from the CartPole problem. We extensively
-study the dynamics of meta-learning applied to a problem with a continuous
+\paragraph{Study of meta-learning applied to a new setting.} Meta-learning is applied
+to a distribution of tasks derived from the CartPole problem. An extensive
+study about the dynamics of meta-learning applied to a problem with a continuous
 reward over long episodes, and the impact of the learning horizon (both
 in terms of number of episodes the meta-learning agent is allowed to play
-and the discount factor). 
+and the discount factor) is provided. \\
 
-We identify a critical flaw in the reward pattern provided by the CartPole
-environment and propose a simple and effective strategy to counteract its
+A critical flaw is identified in the reward pattern provided by the CartPole
+environment and a simple and effective strategy is proposed to counteract its
 negative consequences, effectively allowing meta-learning to occur in
 problems with similar continuous reward structures.

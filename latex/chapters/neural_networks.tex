@@ -105,7 +105,7 @@ $$ o = f_o\left(f_h(iW_{ih} + b_h)W_{ho} + b_o\right) $$
 
 The example of Figure~\ref{fig:neural_network} is an extremely simple example.
 Often, neural networks will be \textbf{wider} (meaning that there are more
-neurons per layer) and \textbf{deeper} (meaning that there will be more layers).
+neurons per layer) and \textbf{deeper} (meaning that there are more layers).
 This can lead to issues and challenges when training them. The main issue
 related to deep neural networks is the vanishing gradient problem, exposed
 by Hochreiter \cite{vanishing_gradient}. More generally, adding more 
@@ -210,7 +210,7 @@ which can be expanded using the chain rule:
 	\label{eq:chainrule}
 \end{equation}
 where $net_o$ is the input of neuron $o$ and $a_o$ is the activation value
-of neuron $o$.\\
+(or the output value) of neuron $o$.\\
 
 Let us analyse each partial derivative of equation~\ref{eq:chainrule}.
 The derivative of the error with respect to the activation is :
@@ -294,7 +294,10 @@ of overfitting is shown on Figure~\ref{fig:overfitting}.\\
 	\includegraphics[width=0.8\linewidth]{fig/overfitting.pdf}
 	\caption{An illustration of underfitting (left) and overfitting (right).
 	The MSE metric shows the error on a validation set for each learned
-	polynomial.}
+	polynomial. In green, the function we are trying to approximate, from
+	which samples are generated with a small error. In blue, our estimation of
+	the true function estimated with different degrees of polynomial
+	based on the samples.}
 	\label{fig:overfitting}
 \end{figure}
 
@@ -307,7 +310,7 @@ There are several ways of avoiding overfitting, of which some are:
 	\item adding more data, or augmenting the existing data by transforming
 		it can also increase generalisation performance as the network
 		won't "remember" a given set of examples as opposed to truly
-		trying to understand the concepts we want it to learn
+		trying to understand the concepts we want it to learn.
 	\item \textbf{early stopping} is a method that checks the error
 		on the validation set during training, and that stops training
 		whenever the error on the validation set starts increasing.
@@ -404,8 +407,8 @@ a constant. The equation has to be unfolded like this:
 
 Unrolled recurrent neural networks are just deep neural networks, and the
 more they are unrolled, the deeper they get, so they also suffer from
-the vanishing or exploding gradients problem \cite{vanishing_gradient_rnn}.
-\todo{maybe explain}
+the vanishing or exploding gradients problem \cite{vanishing_gradient_rnn, 
+bengio94}.
 
 \begin{figure}
 	\centering
@@ -457,7 +460,6 @@ three in total, as they can be seen from left to right on Figure~\ref{fig:lstm}:
 \end{enumerate}
 A deeper analysis of LSTMs and an insight into their behaviour has been
 provided by Karpathy et al. \cite{lstm-analysis}
-\todo{maybe more?}
 
 \subsubsection{Summary}
 Neural networks are very useful tools that, when designed and trained the right way,
@@ -467,4 +469,4 @@ can approximate any function (although under certain assumptions
 
 However useful they are, we have seen that they are not as tame as one would
 wish. Indeed, as they get deeper, their likelihood of diverging or
-overfitting, so we must be careful when using them.
+overfitting increases, so we must be careful when using them.

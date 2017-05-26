@@ -148,7 +148,7 @@ we increase the discount factor, they all eventually decline to random
 policy-like reward. Once the discount factor reaches values where the
 second-to-last episode should be involved in having a high reward (around
 0.97 and above), training diverges and the agent never manages to reach
-high scores.
+high scores.\\
 
 \begin{figure}
 	\centering
@@ -173,11 +173,14 @@ high scores.
 \end{figure}
 
 High values of $\gamma$ directly lead to higher returns, and this has a
-double effect:
+double effect on the training:
 \begin{enumerate}
-	\item gradients will be scaled by a bigger factor
+	\item gradients will be scaled by a bigger factor, and as stated previously,
+		bigger steps might make the training generally less stable
+		and decrease the probability of reaching a good optimum
+	\item the variance of returns will also increase, making the training
+		targets for the network less stable.
 \end{enumerate}
-\todo{refs?}
 
 
 \subsection{Training on more episodes}
