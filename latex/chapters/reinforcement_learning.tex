@@ -339,8 +339,8 @@ Q-values estimate the value of state-action pairs instead of
 only states; i.e. the
 estimated discounted reward achievable when taking a specific action in a 
 specific state. The reasoning to find an update rule is similar for V-values
-and Q-values. The optimal Q function can be estimated with a Bellman equation :
-$$ Q(s, a) = \mathbb{E}\left[ r_t + \gamma \max\limits_{a'} Q(s', a') \right]$$
+and Q-values. The optimal $Q^*$ function can be estimated with a Bellman equation :
+$$ Q^*(s, a) = \mathbb{E}\left[ r_t + \gamma \max\limits_{a'} Q^*(s', a') \right]$$
 \noindent and so can be deduced an update rule for Q networks of which the loss
 can be defined with the following :
 
