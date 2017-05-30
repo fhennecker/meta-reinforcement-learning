@@ -100,34 +100,55 @@ def test():
     with tf.Session() as sess:
         nn = RL2(2)
         saver = tf.train.Saver()
-        saver.restore(sess, './training/agent-11000')
-        bandit = [0.4, 0.6]
-        random.shuffle(bandit)
-        choice = random.randint(0,1)
-        reward = pull(bandit, choice)
-        hidden_state = None
-        optimal = []
-        
-        for i in range(100):
-            print(bandit, choice, reward)
-            feed_dict = { 
-                    nn.batch_size : 1,
-                    nn.sequence_length: 1,
-                    nn.input : [[[choice, i, reward]] ]
-            }
-            if hidden_state is not None:
-                feed_dict[nn.initial_state] = hidden_state
-            if i == 0 :
-                start_hidden_state = hidden_state
+        saver.restore(sess, './training/agent-7000')
+        total_reward_per_bandit = []
 
-            actions_distribution, hidden_state = sess.run(
-                    [nn.last_actions_distribution, nn.rnn_output_state], feed_dict)
+        diff_values = 20
+        n_eps_per_value = 100
+        for b in range(diff_values):
+            total_reward_per_bandit.append(0)
+            bandit = [0.5+b/(diff_values*2), 0.5-b/(diff_values*2)]
+            print(bandit)
 
-            choice = np.random.choice(2, p=actions_distribution)
-            reward = pull(bandit, choice)
-            optimal.append(choice == np.argmax(bandit))
+            for k in range(n_eps_per_value):
+                random.shuffle(bandit)
+                choice = random.randint(0,1)
+                reward = pull(bandit, choice)
+                hidden_state = None
+                optimal = []
+                
+                total_episode_reward = 0
+                for i in range(100):
+                    feed_dict = { 
+                            nn.batch_size : 1,
+                            nn.sequence_length: 1,
+                            nn.input : [[[choice, i, reward]] ]
+                    }
+                    if hidden_state is not None:
+                        feed_dict[nn.initial_state] = hidden_state
+                    if i == 0 :
+                        start_hidden_state = hidden_state
 
-        print(sum(optimal)/len(optimal))
+                    actions_distribution, hidden_state = sess.run(
+                            [nn.last_actions_distribution, nn.rnn_output_state], feed_dict)
+
+                    choice = np.random.choice(2, p=actions_distribution)
+                    reward = pull(bandit, choice)
+                    total_episode_reward += reward
+                    optimal.append(choice == np.argmax(bandit))
+                total_reward_per_bandit[-1] += total_episode_reward
+        total_reward_per_bandit = np.array(total_reward_per_bandit)/n_eps_per_value
+
+        p_bs = [0.5+b/(diff_values*2) for b in range(diff_values)]
+        plt.plot(p_bs, [(0.5+b/(diff_values*2))*100 for b in range(diff_values)], 'm--')
+        plt.plot(p_bs, total_reward_per_bandit, color=(0.28, 0.6, 0.85))
+        plt.legend(['Best expected reward', 'Actual reward'], loc='upper left')
+        plt.ylabel('Average trial reward')
+        plt.xlabel('$p_b$')
+        plt.xlim([0.5, 1])
+        plt.savefig('bandit_test.pdf')
+        plt.show()
+
 
 
 
@@ -145,8 +166,8 @@ def train():
     episode_length = 100
 
     nn = RL2(n_arms)
-    image = np.zeros((500, episode_length))
-    pull_image = np.zeros((500, episode_length))
+    image = np.zeros((400, episode_length))
+    pull_image = np.zeros((400, episode_length))
     image_line = 0
 
     start_entropy = 1.0
@@ -194,7 +215,7 @@ def train():
 
                 hidden_state = None
                 #  bandits = generate_n_bandits(n_arms)
-                bandits = random.choice([[0.1, 0.9], [0.9, 0.1]])
+                bandits = random.choice([[0.1, 0.9], [0.9, 0.1], [0.8, 0.2], [0.2, 0.8]])
                 #  random.shuffle(bandits)
                 print(bandits)
 
@@ -237,7 +258,7 @@ def train():
                 total_trial_reward += total_episode_reward
 
             print(np.array(inputs).shape)
-            if t%15 == 0 and image_line < image.shape[0]:
+            if t%20 == 0 and image_line < image.shape[0]:
                 pulls = np.array(inputs[-1])[:,0].reshape([1, -1])
                 optimal_pulls = pulls == np.argmax(bandits)
                 quality = np.argsort(bandits)[pulls]
@@ -245,15 +266,21 @@ def train():
                 pull_image[image_line, :] = pulls
                 image_line += 1
                 start = time.time()
-            if t%60 == 0:
+            if t%100 == 0:
                 plt.figure(1)
                 plt.imshow(image, cmap='gray', interpolation='nearest')
+                plt.ylabel('Training trial (x20 trials)')
+                plt.xlabel('Episode number within the trial')
                 plt.draw()
                 plt.pause(0.001)
                 plt.figure(3)
+                plt.ylabel('Training trial (x20 trials)')
+                plt.xlabel('Episode number within the trial')
                 plt.imshow(pull_image, cmap='gray', interpolation='nearest')
                 plt.draw()
                 plt.pause(0.001)
+                image.tofile(open('figreport/image.txt', 'w'))
+                pull_image.tofile(open('figreport/pull_image.txt', 'w'))
             print(time.time()-start)
 
             entropymul = max(end_entropy, start_entropy - (start_entropy-end_entropy) * t/ end_entropy_iteration)
@@ -305,11 +332,12 @@ def train():
                 plt.plot(total_trial_rewards)
                 plt.pause(0.001)
                 plt.show()
+            open('figreport/trial_rewards.txt', 'w').write(str(total_trial_rewards))
 
             if t%100 == 0:
-                plt.figure(1); plt.savefig('fig3/optimality.png')
-                plt.figure(2); plt.savefig('fig3/reward.pdf')
-                plt.figure(3); plt.savefig('fig3/pulls.png')
+                plt.figure(1); plt.savefig('figreport/optimality.png')
+                plt.figure(2); plt.savefig('figreport/reward.pdf')
+                plt.figure(3); plt.savefig('figreport/pulls.png')
 
 
 if __name__ == "__main__":
